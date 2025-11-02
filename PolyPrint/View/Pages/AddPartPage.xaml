@@ -1,14 +1,79 @@
-﻿<Page x:Class="PolyPrint.View.Pages.AddPartPage"
+<Page x:Class="PolyPrint.View.Pages.AddPartPage"
       xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
       xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
-      xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
       xmlns:local="clr-namespace:PolyPrint.View.Pages"
-      mc:Ignorable="d" 
-      d:DesignHeight="450" d:DesignWidth="800"
-      Title="AddPartPage">
+      mc:Ignorable="d"
+      d:DesignHeight="600" d:DesignWidth="900"
+      Title="Запчасти"
+      Tag="Управляйте складом запчастей, отслеживайте остаток и стоимость.">
+    <ScrollViewer VerticalScrollBarVisibility="Auto">
+        <StackPanel Margin="24">
+            <Border Style="{StaticResource CardStyle}">
+                <StackPanel>
+                    <TextBlock Text="Добавление запчасти"
+                               Style="{StaticResource SectionTitleTextBlockStyle}"/>
+                    <TextBlock Text="Заполните карточку запчасти и укажите количество на складе."
+                               Style="{StaticResource CaptionTextBlockStyle}"/>
 
-    <Grid>
-        
-    </Grid>
+                    <UniformGrid Columns="2" Margin="0,24,0,0">
+                        <StackPanel Margin="0,0,24,16">
+                            <TextBlock Text="Наименование" FontWeight="SemiBold"/>
+                            <TextBox x:Name="NameTextBox" MinWidth="200"/>
+                        </StackPanel>
+                        <StackPanel Margin="0,0,0,16">
+                            <TextBlock Text="Артикул" FontWeight="SemiBold"/>
+                            <TextBox x:Name="ArticleTextBox" MinWidth="200"/>
+                        </StackPanel>
+                        <StackPanel Margin="0,0,24,0">
+                            <TextBlock Text="Поставщик" FontWeight="SemiBold"/>
+                            <TextBox x:Name="SupplierTextBox" MinWidth="200"/>
+                        </StackPanel>
+                        <StackPanel>
+                            <TextBlock Text="Количество" FontWeight="SemiBold"/>
+                            <TextBox x:Name="QuantityTextBox" MinWidth="200"/>
+                        </StackPanel>
+                        <StackPanel Margin="0,0,24,0">
+                            <TextBlock Text="Цена, ₽" FontWeight="SemiBold"/>
+                            <TextBox x:Name="PriceTextBox" MinWidth="200"/>
+                        </StackPanel>
+                    </UniformGrid>
+
+                    <StackPanel Orientation="Horizontal"
+                                HorizontalAlignment="Right"
+                                Margin="0,24,0,0">
+                        <Button Content="Очистить"
+                                Style="{StaticResource SecondaryButtonStyle}"
+                                Width="140"
+                                Click="ClearPartForm_Click"/>
+                        <Button Content="Сохранить запчасть"
+                                Style="{StaticResource PrimaryButtonStyle}"
+                                Width="200"
+                                Margin="12,0,0,0"
+                                Click="SavePartButton_Click"/>
+                    </StackPanel>
+                </StackPanel>
+            </Border>
+
+            <Border Style="{StaticResource CardStyle}" Margin="0,32,0,0">
+                <StackPanel>
+                    <TextBlock Text="Склад"
+                               Style="{StaticResource SectionTitleTextBlockStyle}"/>
+                    <DataGrid x:Name="PartsGrid"
+                              AutoGenerateColumns="False"
+                              IsReadOnly="True">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="ID" Binding="{Binding ID}" Width="80"/>
+                            <DataGridTextColumn Header="Наименование" Binding="{Binding Name}" Width="*"/>
+                            <DataGridTextColumn Header="Артикул" Binding="{Binding Article}" Width="160"/>
+                            <DataGridTextColumn Header="Поставщик" Binding="{Binding Supplier}" Width="*"/>
+                            <DataGridTextColumn Header="Количество" Binding="{Binding Quantity}" Width="120"/>
+                            <DataGridTextColumn Header="Цена" Binding="{Binding Price, StringFormat=N2}" Width="140"/>
+                        </DataGrid.Columns>
+                    </DataGrid>
+                </StackPanel>
+            </Border>
+        </StackPanel>
+    </ScrollViewer>
 </Page>

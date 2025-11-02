@@ -1,127 +1,57 @@
-﻿<Window x:Class="PolyPrint.View.Windows.AboutWindow"
+<Window x:Class="PolyPrint.View.Windows.AboutWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:PolyPrint.View.Windows"
         mc:Ignorable="d"
-        Title="О программе" 
-        Height="400" 
-        Width="450"
-        WindowStartupLocation="CenterScreen"
+        Title="О программе"
+        WindowStartupLocation="CenterOwner"
+        SizeToContent="WidthAndHeight"
         ResizeMode="NoResize"
-        Background="{StaticResource WindowBackgroundBrush}">
-
-    <Grid>
-        <!--#region Определение структуры-->
-        <Grid.RowDefinitions>
-            <RowDefinition Height="*"/>
-        </Grid.RowDefinitions>
-        <!--#endregion-->
-
-        <!--#region Контент-->
-        <Border Background="White"
-                CornerRadius="10"
-                Margin="20">
-            <Border.Effect>
-                <DropShadowEffect Color="Gray" 
-                                  BlurRadius="15" 
-                                  ShadowDepth="3" 
-                                  Opacity="0.3"/>
-            </Border.Effect>
-
-            <Grid Margin="30">
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="20"/>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="10"/>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="30"/>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="*"/>
-                    <RowDefinition Height="Auto"/>
-                </Grid.RowDefinitions>
-
-                <!--#region Логотип-->
-                <TextBlock Grid.Row="0"
-                           Text="🖨️ PolyPrint"
-                           FontSize="36"
+        MinWidth="360"
+        MinHeight="260">
+    <Grid Margin="28">
+        <Border Style="{StaticResource CardStyle}">
+            <StackPanel>
+                <TextBlock Text="PolyPrint"
+                           FontSize="26"
                            FontWeight="Bold"
-                           HorizontalAlignment="Center"
-                           Foreground="{StaticResource HeaderBackgroundBrush}"/>
-                <!--#endregion-->
+                           Margin="0,0,0,8"/>
+                <TextBlock Text="Система управления сервисным центром"
+                           Style="{StaticResource CaptionTextBlockStyle}"/>
 
-                <!--#region Название-->
-                <TextBlock Grid.Row="2"
-                           Text="Система управления продажами и сервисом"
-                           FontSize="16"
-                           FontWeight="Medium"
-                           HorizontalAlignment="Center"
-                           TextWrapping="Wrap"
-                           TextAlignment="Center"
-                           Foreground="#5A5A5A"/>
+                <Separator Margin="0,20,0,16"/>
 
-                <TextBlock Grid.Row="4"
-                           Text="полиграфического оборудования"
-                           FontSize="16"
-                           FontWeight="Medium"
-                           HorizontalAlignment="Center"
-                           Foreground="#5A5A5A"/>
-                <!--#endregion-->
+                <StackPanel>
+                    <TextBlock Text="Версия приложения"
+                               FontWeight="SemiBold"/>
+                    <TextBlock Text="1.0.0"
+                               Margin="0,2,0,12"
+                               Style="{StaticResource CaptionTextBlockStyle}"/>
 
-                <!--#region Контактная информация-->
-                <StackPanel Grid.Row="6"
-                            HorizontalAlignment="Center">
-                    <StackPanel Orientation="Horizontal"
-                                Margin="0,5">
-                        <TextBlock Text="📞 Телефон:"
-                                   FontSize="14"
-                                   FontWeight="SemiBold"
-                                   Foreground="#2C2C2C"
-                                   Width="100"/>
-                        <TextBlock Text="+7 (800) 555-35-35"
-                                   FontSize="14"
-                                   Foreground="#5A5A5A"/>
-                    </StackPanel>
+                    <TextBlock Text="Разработчик"
+                               FontWeight="SemiBold"/>
+                    <TextBlock Text="Команда PolyPrint"
+                               Margin="0,2,0,12"
+                               Style="{StaticResource CaptionTextBlockStyle}"/>
 
-                    <StackPanel Orientation="Horizontal"
-                                Margin="0,5">
-                        <TextBlock Text="✉️ Email:"
-                                   FontSize="14"
-                                   FontWeight="SemiBold"
-                                   Foreground="#2C2C2C"
-                                   Width="100"/>
-                        <TextBlock Text="info@polyprint.ru"
-                                   FontSize="14"
-                                   Foreground="#5A5A5A"/>
-                    </StackPanel>
-
-                    <StackPanel Orientation="Horizontal"
-                                Margin="0,5">
-                        <TextBlock Text="🌐 Сайт:"
-                                   FontSize="14"
-                                   FontWeight="SemiBold"
-                                   Foreground="#2C2C2C"
-                                   Width="100"/>
-                        <TextBlock Text="www.polyprint.ru"
-                                   FontSize="14"
-                                   Foreground="#5A5A5A"/>
-                    </StackPanel>
+                    <TextBlock Text="Контакты поддержки"
+                               FontWeight="SemiBold"/>
+                    <TextBlock Text="support@polyprint.app"
+                               Margin="0,2,0,0"
+                               Style="{StaticResource CaptionTextBlockStyle}"/>
                 </StackPanel>
-                <!--#endregion-->
 
-                <!--#region Версия и год-->
-                <TextBlock Grid.Row="8"
-                           Text="© 2025 PolyPrint. Версия 1.0"
-                           FontSize="12"
-                           HorizontalAlignment="Center"
-                           Foreground="#999"
-                           Margin="0,10,0,0"/>
-                <!--#endregion-->
-            </Grid>
+                <StackPanel Orientation="Horizontal"
+                            HorizontalAlignment="Right"
+                            Margin="0,24,0,0">
+                    <Button Content="Закрыть"
+                            Width="120"
+                            Style="{StaticResource PrimaryButtonStyle}"
+                            Click="CloseButton_Click"/>
+                </StackPanel>
+            </StackPanel>
         </Border>
-        <!--#endregion-->
     </Grid>
 </Window>
 <!--#endregion-->

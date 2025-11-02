@@ -1,17 +1,8 @@
-﻿using PolyPrint.Model;
-using System;
+using PolyPrint.AppData;
+using PolyPrint.Model;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
 
 namespace PolyPrint.View.Windows
 {
@@ -22,32 +13,7 @@ namespace PolyPrint.View.Windows
         public LoginWindow()
         {
             InitializeComponent();
-
-            LoginButton.Click += LoginButton_Click;
-            PasswordBox.KeyDown += PasswordBox_KeyDown;
-            LoginTextBox.KeyDown += LoginTextBox_KeyDown;
-
-            LoginTextBox.Focus();
-        }
-
-        #endregion
-
-        #region Обработка ввода
-
-        private void LoginTextBox_KeyDown(object sender, KeyEventArgs e)
-        {
-            if (e.Key == Key.Enter)
-            {
-                PasswordBox.Focus();
-            }
-        }
-
-        private void PasswordBox_KeyDown(object sender, KeyEventArgs e)
-        {
-            if (e.Key == Key.Enter)
-            {
-                PerformLogin();
-            }
+            Loaded += (_, __) => LoginTextBox.Focus();
         }
 
         #endregion
@@ -56,6 +22,18 @@ namespace PolyPrint.View.Windows
 
         private void LoginButton_Click(object sender, RoutedEventArgs e)
         {
+            string login = StringHelper.Normalize(LoginTextBox.Text);
+            string password = PasswordBox.Password ?? string.Empty;
+
+            if (!ValidationHelper.RequireNotEmpty(new Dictionary<string, string>
+                {
+                    { "Логин", login },
+                    { "Пароль", password }
+                }, out string requiredError))
+            {
+                DialogHelper.ShowWarning(requiredError);
+                return;
+            }
             PerformLogin();
         }
 
@@ -78,13 +56,7 @@ namespace PolyPrint.View.Windows
 
             if (user == null)
             {
-                MessageBox.Show("Неверный логин или пароль.",
-                    "Ошибка авторизации",
-                    MessageBoxButton.OK,
-                    MessageBoxImage.Error);
-                PasswordBox.Clear();
-                PasswordBox.Focus();
-                return;
+                DialogHelper.ShowWarning("Неверный логин или пароль.");
             }
 
             MainWindow mainWindow = new MainWindow();
@@ -93,6 +65,9 @@ namespace PolyPrint.View.Windows
             Close();
         }
 
-        #endregion
+        private void CloseButton_Click(object sender, RoutedEventArgs e)
+        {
+            Close();
+        }
     }
 }

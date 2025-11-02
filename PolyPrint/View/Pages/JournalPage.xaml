@@ -1,138 +1,50 @@
-﻿<!--#region JournalPage - Журнал данных-->
 <Page x:Class="PolyPrint.View.Pages.JournalPage"
       xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
       xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-      mc:Ignorable="d" 
-      d:DesignHeight="450" 
-      d:DesignWidth="800"
-      Background="{StaticResource ContentBackgroundBrush}">
-
-    <Grid>
-        <!--#region Определение структуры-->
-        <Grid.RowDefinitions>
-            <RowDefinition Height="70"/>
-            <RowDefinition Height="50"/>
-            <RowDefinition Height="*"/>
-        </Grid.RowDefinitions>
-        <!--#endregion-->
-
-        <!--#region Заголовок и выбор таблицы-->
-        <Border Grid.Row="0"
-                Background="White"
-                CornerRadius="8"
-                Margin="20,15,20,0">
-            <Border.Effect>
-                <DropShadowEffect Color="Gray" 
-                                  BlurRadius="8" 
-                                  ShadowDepth="2" 
-                                  Opacity="0.2"/>
-            </Border.Effect>
-
-            <Grid Margin="20,0">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="Auto"/>
-                </Grid.ColumnDefinitions>
-
-                <TextBlock Grid.Column="0" 
-                           Text="Журнал данных" 
-                           Style="{StaticResource PageTitleStyle}"
-                           VerticalAlignment="Center"/>
-
-                <StackPanel Grid.Column="1" 
-                            Orientation="Horizontal"
-                            VerticalAlignment="Center">
-                    <TextBlock Text="Таблица:" 
-                               VerticalAlignment="Center"
-                               FontSize="14"
-                               Margin="0,0,10,0"
-                               Foreground="#5A5A5A"/>
-
+      xmlns:local="clr-namespace:PolyPrint.View.Pages"
+      mc:Ignorable="d"
+      d:DesignHeight="600" d:DesignWidth="900"
+      Title="Журнал"
+      Tag="Просматривайте ключевые данные по заказам, заявкам и выполненным работам.">
+    <ScrollViewer VerticalScrollBarVisibility="Auto">
+        <StackPanel Margin="24">
+            <Border Style="{StaticResource CardStyle}">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="260"/>
+                    </Grid.ColumnDefinitions>
+                    <StackPanel Grid.Column="0">
+                        <TextBlock Text="Журнал данных"
+                                   Style="{StaticResource SectionTitleTextBlockStyle}"/>
+                        <TextBlock Text="Выберите набор данных, который хотите просмотреть."
+                                   Style="{StaticResource CaptionTextBlockStyle}"/>
+                    </StackPanel>
                     <ComboBox x:Name="TableSelector"
-                              Style="{StaticResource FilterComboBoxStyle}"
-                              Width="200"
-                              SelectedIndex="0">
+                              Grid.Column="1"
+                              HorizontalAlignment="Right"
+                              Width="220"
+                              SelectionChanged="TableSelector_SelectionChanged">
                         <ComboBoxItem Content="Заказы"/>
-                        <ComboBoxItem Content="Сервисные заявки"/>
-                        <ComboBoxItem Content="Выполненные работы"/>
-                        <ComboBoxItem Content="Оборудование"/>
-                        <ComboBoxItem Content="Клиенты"/>
+                        <ComboBoxItem Content="Заявки"/>
+                        <ComboBoxItem Content="Работы"/>
                     </ComboBox>
+                </Grid>
+            </Border>
+
+            <Border Style="{StaticResource CardStyle}" Margin="0,32,0,0">
+                <StackPanel>
+                    <TextBlock Text="Результаты"
+                               Style="{StaticResource SectionTitleTextBlockStyle}"/>
+                    <DataGrid x:Name="MainGrid"
+                              AutoGenerateColumns="True"
+                              IsReadOnly="True"
+                              CanUserAddRows="False"
+                              Margin="0,12,0,0"/>
                 </StackPanel>
-            </Grid>
-        </Border>
-        <!--#endregion-->
-
-        <!--#region Панель поиска-->
-        <Border Grid.Row="1"
-                Background="White"
-                CornerRadius="8"
-                Margin="20,10,20,0">
-            <Border.Effect>
-                <DropShadowEffect Color="Gray" 
-                                  BlurRadius="8" 
-                                  ShadowDepth="2" 
-                                  Opacity="0.2"/>
-            </Border.Effect>
-
-            <Grid Margin="15,0">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="Auto"/>
-                </Grid.ColumnDefinitions>
-
-                <Border Grid.Column="0"
-                        Style="{StaticResource SearchBorderStyle}"
-                        Height="35">
-                    <Grid>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="Auto"/>
-                            <ColumnDefinition Width="*"/>
-                        </Grid.ColumnDefinitions>
-
-                        <TextBlock Grid.Column="0"
-                                   Text="🔍"
-                                   FontSize="16"
-                                   VerticalAlignment="Center"
-                                   Margin="10,0,5,0"
-                                   Foreground="#999"/>
-
-                        <TextBox x:Name="SearchBox"
-                                 Grid.Column="1"
-                                 Style="{StaticResource SearchTextBoxStyle}"/>
-                    </Grid>
-                </Border>
-
-                <Button x:Name="RefreshButton"
-                        Grid.Column="1"
-                        Content="🔄 Обновить"
-                        Style="{StaticResource SecondaryButtonStyle}"
-                        Width="120"
-                        Height="35"
-                        Margin="10,0,0,0"/>
-            </Grid>
-        </Border>
-        <!--#endregion-->
-
-        <!--#region Таблица данных-->
-        <Border Grid.Row="2"
-                Background="White"
-                CornerRadius="8"
-                Margin="20,10,20,20">
-            <Border.Effect>
-                <DropShadowEffect Color="Gray" 
-                                  BlurRadius="8" 
-                                  ShadowDepth="2" 
-                                  Opacity="0.2"/>
-            </Border.Effect>
-
-            <DataGrid x:Name="MainGrid"
-                      Style="{StaticResource ModernDataGridStyle}"
-                      Margin="15"/>
-        </Border>
-        <!--#endregion-->
-    </Grid>
+            </Border>
+        </StackPanel>
+    </ScrollViewer>
 </Page>
-<!--#endregion-->

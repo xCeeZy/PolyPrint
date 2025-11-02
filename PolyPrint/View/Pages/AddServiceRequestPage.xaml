@@ -1,14 +1,97 @@
-﻿<Page x:Class="PolyPrint.View.Pages.AddServiceRequestPage"
+<Page x:Class="PolyPrint.View.Pages.AddServiceRequestPage"
       xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
       xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
-      xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
       xmlns:local="clr-namespace:PolyPrint.View.Pages"
-      mc:Ignorable="d" 
-      d:DesignHeight="450" d:DesignWidth="800"
-      Title="AddServiceRequestPage">
+      xmlns:sys="clr-namespace:System;assembly=mscorlib"
+      mc:Ignorable="d"
+      d:DesignHeight="600" d:DesignWidth="900"
+      Title="Сервисные заявки"
+      Tag="Фиксируйте обращения клиентов и отслеживайте выполнение работ мастерами.">
+    <ScrollViewer VerticalScrollBarVisibility="Auto">
+        <StackPanel Margin="24">
+            <Border Style="{StaticResource CardStyle}">
+                <StackPanel>
+                    <TextBlock Text="Новая сервисная заявка"
+                               Style="{StaticResource SectionTitleTextBlockStyle}"/>
+                    <TextBlock Text="Выберите клиента и оборудование, опишите проблему и назначьте мастера."
+                               Style="{StaticResource CaptionTextBlockStyle}"/>
 
-    <Grid>
-        
-    </Grid>
+                    <UniformGrid Columns="2" Margin="0,24,0,0">
+                        <StackPanel Margin="0,0,24,16">
+                            <TextBlock Text="Клиент" FontWeight="SemiBold"/>
+                            <ComboBox x:Name="ClientComboBox"
+                                      DisplayMemberPath="Organization_Name"
+                                      SelectedValuePath="ID_Client"
+                                      SelectionChanged="ClientComboBox_SelectionChanged"/>
+                        </StackPanel>
+                        <StackPanel Margin="0,0,0,16">
+                            <TextBlock Text="Оборудование" FontWeight="SemiBold"/>
+                            <ComboBox x:Name="EquipmentComboBox"
+                                      DisplayMemberPath="Name"
+                                      SelectedValuePath="ID_Equipment"
+                                      IsEditable="False"/>
+                        </StackPanel>
+                        <StackPanel Margin="0,0,24,0">
+                            <TextBlock Text="Дата создания" FontWeight="SemiBold"/>
+                            <DatePicker x:Name="CreatedDatePicker" SelectedDate="{x:Static sys:DateTime.Today}"/>
+                        </StackPanel>
+                        <StackPanel>
+                            <TextBlock Text="Статус" FontWeight="SemiBold"/>
+                            <ComboBox x:Name="StatusComboBox" IsEditable="True"/>
+                        </StackPanel>
+                    </UniformGrid>
+
+                    <StackPanel Margin="0,12,0,0">
+                        <TextBlock Text="Назначенный мастер" FontWeight="SemiBold"/>
+                        <ComboBox x:Name="MasterComboBox"
+                                  DisplayMemberPath="Login"
+                                  SelectedValuePath="ID_User"/>
+                    </StackPanel>
+
+                    <StackPanel Margin="0,12,0,0">
+                        <TextBlock Text="Описание проблемы" FontWeight="SemiBold"/>
+                        <TextBox x:Name="ProblemDescriptionTextBox"
+                                 AcceptsReturn="True"
+                                 Height="100"
+                                 TextWrapping="Wrap"/>
+                    </StackPanel>
+
+                    <StackPanel Orientation="Horizontal"
+                                HorizontalAlignment="Right"
+                                Margin="0,24,0,0">
+                        <Button Content="Очистить"
+                                Style="{StaticResource SecondaryButtonStyle}"
+                                Width="140"
+                                Click="ClearRequestForm_Click"/>
+                        <Button Content="Сохранить заявку"
+                                Style="{StaticResource PrimaryButtonStyle}"
+                                Width="200"
+                                Margin="12,0,0,0"
+                                Click="SaveRequestButton_Click"/>
+                    </StackPanel>
+                </StackPanel>
+            </Border>
+
+            <Border Style="{StaticResource CardStyle}" Margin="0,32,0,0">
+                <StackPanel>
+                    <TextBlock Text="Все заявки"
+                               Style="{StaticResource SectionTitleTextBlockStyle}"/>
+                    <DataGrid x:Name="RequestsGrid"
+                              AutoGenerateColumns="False"
+                              IsReadOnly="True">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="ID" Binding="{Binding ID}" Width="80"/>
+                            <DataGridTextColumn Header="Клиент" Binding="{Binding Client}" Width="*"/>
+                            <DataGridTextColumn Header="Оборудование" Binding="{Binding Equipment}" Width="*"/>
+                            <DataGridTextColumn Header="Дата" Binding="{Binding Created, StringFormat=d}" Width="140"/>
+                            <DataGridTextColumn Header="Статус" Binding="{Binding Status}" Width="160"/>
+                            <DataGridTextColumn Header="Мастер" Binding="{Binding Master}" Width="*"/>
+                        </DataGrid.Columns>
+                    </DataGrid>
+                </StackPanel>
+            </Border>
+        </StackPanel>
+    </ScrollViewer>
 </Page>
