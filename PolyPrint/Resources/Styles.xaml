@@ -357,7 +357,6 @@
         <Setter Property="GridLinesVisibility" Value="None"/>
         <Setter Property="CanUserAddRows" Value="False"/>
         <Setter Property="SelectionMode" Value="Extended"/>
-        <Setter Property="SelectionBrush" Value="{StaticResource SelectionBrush}"/>
         <Setter Property="Margin" Value="0,12,0,0"/>
     </Style>
 
@@ -368,7 +367,7 @@
         <Setter Property="Padding" Value="6,0"/>
         <Style.Triggers>
             <Trigger Property="IsSelected" Value="True">
-                <Setter Property="Background" Value="#55BF7C45"/>
+                <Setter Property="Background" Value="{StaticResource SelectionBrush}"/>
                 <Setter Property="Foreground" Value="{StaticResource PrimaryForegroundBrush}"/>
             </Trigger>
         </Style.Triggers>
