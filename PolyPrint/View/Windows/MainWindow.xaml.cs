@@ -18,40 +18,90 @@ namespace PolyPrint.View.Windows
 {
     public partial class MainWindow : Window
     {
+        #region Инициализация
+
         public MainWindow()
         {
             InitializeComponent();
-            MainFrame.Navigate(new JournalPage());
+
+            ClientsButton.Click += ClientsButton_Click;
+            OrdersButton.Click += OrdersButton_Click;
+            EquipmentButton.Click += EquipmentButton_Click;
+            ServiceButton.Click += ServiceButton_Click;
+            PartsButton.Click += PartsButton_Click;
+            JournalButton.Click += JournalButton_Click;
+
+            NavigateToClients();
         }
+
+        #endregion
+
+        #region Навигация
 
         private void ClientsButton_Click(object sender, RoutedEventArgs e)
         {
-            MainFrame.Navigate(new AddClientPage());
+            NavigateToClients();
         }
 
         private void OrdersButton_Click(object sender, RoutedEventArgs e)
         {
-            MainFrame.Navigate(new AddOrderPage());
+            NavigateToOrders();
         }
 
         private void EquipmentButton_Click(object sender, RoutedEventArgs e)
         {
-            MainFrame.Navigate(new AddEquipmentPage());
+            NavigateToEquipment();
         }
 
         private void ServiceButton_Click(object sender, RoutedEventArgs e)
         {
-            MainFrame.Navigate(new AddServiceRequestPage());
+            NavigateToService();
         }
 
         private void PartsButton_Click(object sender, RoutedEventArgs e)
         {
-            MainFrame.Navigate(new AddPartPage());
+            NavigateToParts();
         }
 
         private void JournalButton_Click(object sender, RoutedEventArgs e)
         {
+            NavigateToJournal();
+        }
+
+        #endregion
+
+        #region Методы навигации
+
+        private void NavigateToClients()
+        {
+            MainFrame.Navigate(new AddClientPage());
+        }
+
+        private void NavigateToOrders()
+        {
+            MainFrame.Navigate(new AddOrderPage());
+        }
+
+        private void NavigateToEquipment()
+        {
+            MainFrame.Navigate(new AddEquipmentPage());
+        }
+
+        private void NavigateToService()
+        {
+            MainFrame.Navigate(new AddServiceRequestPage());
+        }
+
+        private void NavigateToParts()
+        {
+            MainFrame.Navigate(new AddPartPage());
+        }
+
+        private void NavigateToJournal()
+        {
             MainFrame.Navigate(new JournalPage());
         }
+
+        #endregion
     }
 }

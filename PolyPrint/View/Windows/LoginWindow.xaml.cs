@@ -17,28 +17,82 @@ namespace PolyPrint.View.Windows
 {
     public partial class LoginWindow : Window
     {
+        #region Инициализация
+
         public LoginWindow()
         {
             InitializeComponent();
+
+            LoginButton.Click += LoginButton_Click;
+            PasswordBox.KeyDown += PasswordBox_KeyDown;
+            LoginTextBox.KeyDown += LoginTextBox_KeyDown;
+
+            LoginTextBox.Focus();
         }
+
+        #endregion
+
+        #region Обработка ввода
+
+        private void LoginTextBox_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.Key == Key.Enter)
+            {
+                PasswordBox.Focus();
+            }
+        }
+
+        private void PasswordBox_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.Key == Key.Enter)
+            {
+                PerformLogin();
+            }
+        }
+
+        #endregion
+
+        #region Авторизация
 
         private void LoginButton_Click(object sender, RoutedEventArgs e)
         {
-            string login = LoginTextBox.Text;
-            string password = PasswordBox.Password;
-
-            Users user = App.db.Users.FirstOrDefault(u => u.Login == login && u.Password == password);
-
-            if (user != null)
-            {
-                MainWindow mainWindow = new MainWindow();
-                mainWindow.Show();
-                Close();
-            }
-            else
-            {
-                MessageBox.Show("Неверный логин или пароль");
-            }
+            PerformLogin();
         }
+
+        private void PerformLogin()
+        {
+            string login = LoginTextBox.Text.Trim();
+            string password = PasswordBox.Password.Trim();
+
+            if (string.IsNullOrWhiteSpace(login) || string.IsNullOrWhiteSpace(password))
+            {
+                MessageBox.Show("Введите логин и пароль.",
+                    "Ошибка",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Warning);
+                return;
+            }
+
+            Users user = App.db.Users
+                .FirstOrDefault(u => u.Login == login && u.Password == password);
+
+            if (user == null)
+            {
+                MessageBox.Show("Неверный логин или пароль.",
+                    "Ошибка авторизации",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Error);
+                PasswordBox.Clear();
+                PasswordBox.Focus();
+                return;
+            }
+
+            MainWindow mainWindow = new MainWindow();
+            mainWindow.Show();
+
+            Close();
+        }
+
+        #endregion
     }
 }

@@ -14,6 +14,6 @@ namespace PolyPrint
     /// </summary>
     public partial class App : Application
     {
-        public static PolyPrintEntities context = new PolyPrintEntities();
+        public static PolyPrintEntities db = new PolyPrintEntities();
     }
 }

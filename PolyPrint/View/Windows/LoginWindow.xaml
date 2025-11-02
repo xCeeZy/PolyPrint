@@ -5,39 +5,100 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:PolyPrint.View.Windows"
         mc:Ignorable="d"
-        Title="Авторизация" Height="320" Width="450"
+        Title="Авторизация" 
+        Height="480" 
+        Width="500"
         WindowStartupLocation="CenterScreen"
-        Background="PeachPuff">
+        ResizeMode="NoResize"
+        Background="{StaticResource WindowBackgroundBrush}">
 
     <Grid>
+        <!--#region Определение структуры-->
         <Grid.RowDefinitions>
-            <RowDefinition Height="1*"/>
-            <RowDefinition Height="60"/>
-            <RowDefinition Height="60"/>
             <RowDefinition Height="80"/>
-            <RowDefinition Height="1*"/>
+            <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
+        <!--#endregion-->
 
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="1*"/>
-            <ColumnDefinition Width="150"/>
-            <ColumnDefinition Width="200"/>
-            <ColumnDefinition Width="1*"/>
-        </Grid.ColumnDefinitions>
+        <!--#region Заголовок-->
+        <Border Grid.Row="0" 
+                Background="{StaticResource HeaderBackgroundBrush}">
+            <StackPanel VerticalAlignment="Center" 
+                        HorizontalAlignment="Center">
+                <TextBlock Text="PolyPrint" 
+                           FontSize="28" 
+                           FontWeight="Bold"
+                           Foreground="{StaticResource HeaderTextBrush}"
+                           HorizontalAlignment="Center"/>
+                <TextBlock Text="Система управления печатью" 
+                           FontSize="12" 
+                           Foreground="{StaticResource HeaderTextBrush}"
+                           Opacity="0.8"
+                           HorizontalAlignment="Center"
+                           Margin="0,5,0,0"/>
+            </StackPanel>
+        </Border>
+        <!--#endregion-->
 
-        <TextBlock Grid.Row="1" Grid.Column="1" Text="Логин" VerticalAlignment="Center" FontSize="16"/>
-        <TextBox x:Name="LoginTextBox" Grid.Row="1" Grid.Column="2" Height="28" VerticalAlignment="Center"/>
+        <!--#region Форма авторизации-->
+        <Border Grid.Row="1"
+                Background="White"
+                CornerRadius="10"
+                Margin="40,25,40,35">
+            <Border.Effect>
+                <DropShadowEffect Color="Gray" 
+                                  BlurRadius="15" 
+                                  ShadowDepth="3" 
+                                  Opacity="0.3"/>
+            </Border.Effect>
 
-        <TextBlock Grid.Row="2" Grid.Column="1" Text="Пароль" VerticalAlignment="Center" FontSize="16"/>
-        <PasswordBox x:Name="PasswordBox" Grid.Row="2" Grid.Column="2" Height="28" VerticalAlignment="Center"/>
+            <Grid Margin="25">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="12"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="20"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="12"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="25"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
 
-        <Button x:Name="LoginButton"
-                Grid.Row="3" Grid.Column="2"
-                Content="Войти"
-                Width="100"
-                Height="32"
-                VerticalAlignment="Center"
-                HorizontalAlignment="Left"
-                Click="LoginButton_Click"/>
+                <!--#region Поле логина-->
+                <TextBlock Grid.Row="0" 
+                           Text="Логин" 
+                           Style="{StaticResource LabelTextStyle}"/>
+
+                <Border Grid.Row="2"
+                        Style="{StaticResource InputBorderStyle}">
+                    <TextBox x:Name="LoginTextBox"
+                             Style="{StaticResource InputTextBoxStyle}"/>
+                </Border>
+                <!--#endregion-->
+
+                <!--#region Поле пароля-->
+                <TextBlock Grid.Row="4" 
+                           Text="Пароль" 
+                           Style="{StaticResource LabelTextStyle}"/>
+
+                <Border Grid.Row="6"
+                        Style="{StaticResource InputBorderStyle}">
+                    <PasswordBox x:Name="PasswordBox"
+                                 Style="{StaticResource InputPasswordBoxStyle}"/>
+                </Border>
+                <!--#endregion-->
+
+                <!--#region Кнопка входа-->
+                <Button x:Name="LoginButton"
+                        Grid.Row="8"
+                        Content="Войти"
+                        Style="{StaticResource PrimaryButtonStyle}"
+                        Height="45"/>
+                <!--#endregion-->
+            </Grid>
+        </Border>
+        <!--#endregion-->
     </Grid>
 </Window>
+<!--#endregion-->

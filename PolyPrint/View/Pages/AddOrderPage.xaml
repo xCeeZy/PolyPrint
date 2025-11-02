@@ -6,9 +6,117 @@
       xmlns:local="clr-namespace:PolyPrint.View.Pages"
       mc:Ignorable="d" 
       d:DesignHeight="450" d:DesignWidth="800"
-      Title="AddOrderPage">
+      Background="{StaticResource ContentBackgroundBrush}">
 
     <Grid>
-        
+        <Grid.RowDefinitions>
+            <RowDefinition Height="70"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <Border Grid.Row="0"
+                Background="White"
+                CornerRadius="8"
+                Margin="20,15,20,0">
+            <Border.Effect>
+                <DropShadowEffect Color="Gray" BlurRadius="8" ShadowDepth="2" Opacity="0.2"/>
+            </Border.Effect>
+            <TextBlock Text="Добавление заказа"
+                       Style="{StaticResource PageTitleStyle}"
+                       VerticalAlignment="Center"
+                       Margin="20,0"/>
+        </Border>
+
+        <Border Grid.Row="1"
+                Background="White"
+                CornerRadius="8"
+                Margin="20,10,20,20">
+            <Border.Effect>
+                <DropShadowEffect Color="Gray" BlurRadius="8" ShadowDepth="2" Opacity="0.2"/>
+            </Border.Effect>
+
+            <Grid Margin="30">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="10"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="20"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="10"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="20"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="10"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="20"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+
+                <TextBlock Grid.Row="0" Grid.Column="0"
+                           Text="Клиент"
+                           Style="{StaticResource FormLabelStyle}"/>
+
+                <Border Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="3"
+                        Style="{StaticResource FormInputBorderStyle}">
+                    <ComboBox x:Name="ClientBox"
+                              Style="{StaticResource FormComboBoxStyle}"/>
+                </Border>
+
+                <TextBlock Grid.Row="4" Grid.Column="0"
+                           Text="Дата заказа"
+                           Style="{StaticResource FormLabelStyle}"/>
+
+                <Border Grid.Row="6" Grid.Column="0"
+                        Style="{StaticResource FormInputBorderStyle}">
+                    <DatePicker x:Name="OrderDatePicker"
+                                Style="{StaticResource FormDatePickerStyle}"/>
+                </Border>
+
+                <TextBlock Grid.Row="4" Grid.Column="2"
+                           Text="Статус"
+                           Style="{StaticResource FormLabelStyle}"/>
+
+                <Border Grid.Row="6" Grid.Column="2"
+                        Style="{StaticResource FormInputBorderStyle}">
+                    <ComboBox x:Name="StatusBox"
+                              Style="{StaticResource FormComboBoxStyle}">
+                        <ComboBoxItem Content="В обработке"/>
+                        <ComboBoxItem Content="Выполнен"/>
+                        <ComboBoxItem Content="Отменён"/>
+                    </ComboBox>
+                </Border>
+
+                <TextBlock Grid.Row="8" Grid.Column="0"
+                           Text="Общая сумма (₽)"
+                           Style="{StaticResource FormLabelStyle}"/>
+
+                <Border Grid.Row="10" Grid.Column="0" Grid.ColumnSpan="3"
+                        Style="{StaticResource FormInputBorderStyle}">
+                    <TextBox x:Name="TotalBox"
+                             Style="{StaticResource FormTextBoxStyle}"/>
+                </Border>
+
+                <StackPanel Grid.Row="11" Grid.Column="0" Grid.ColumnSpan="3"
+                            Orientation="Horizontal"
+                            HorizontalAlignment="Right"
+                            VerticalAlignment="Bottom"
+                            Margin="0,20,0,0">
+                    <Button x:Name="ClearButton"
+                            Content="Очистить"
+                            Style="{StaticResource SecondaryButtonStyle}"
+                            Width="130"
+                            Margin="0,0,10,0"/>
+                    <Button x:Name="SaveButton"
+                            Content="Сохранить"
+                            Style="{StaticResource SuccessButtonStyle}"
+                            Width="150"/>
+                </StackPanel>
+            </Grid>
+        </Border>
     </Grid>
 </Page>

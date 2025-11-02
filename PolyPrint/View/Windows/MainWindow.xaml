@@ -5,42 +5,101 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:PolyPrint"
         mc:Ignorable="d"
-        Title="PolyPrint" Width="900" Height="550" WindowStartupLocation="CenterScreen" Background="PeachPuff">
+        Title="PolyPrint" 
+        Width="900" 
+        Height="550" 
+        WindowStartupLocation="CenterScreen" 
+        ResizeMode="CanResize"
+        MinWidth="800"
+        MinHeight="500"
+        Background="{StaticResource WindowBackgroundBrush}">
 
     <Grid>
+        <!--#region Определение структуры-->
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="200"/>
-            <ColumnDefinition Width="1*"/>
+            <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
 
         <Grid.RowDefinitions>
             <RowDefinition Height="60"/>
-            <RowDefinition Height="1*"/>
+            <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
+        <!--#endregion-->
 
-        <Border Grid.ColumnSpan="2" Grid.Row="0" Background="#D59F72">
-            <TextBlock Text="PolyPrint — система управления" VerticalAlignment="Center" HorizontalAlignment="Center" FontSize="20" FontWeight="Bold"/>
+        <!--#region Шапка приложения-->
+        <Border Grid.ColumnSpan="2" 
+                Grid.Row="0" 
+                Background="{StaticResource HeaderBackgroundBrush}">
+            <TextBlock Text="PolyPrint — система управления" 
+                       VerticalAlignment="Center" 
+                       HorizontalAlignment="Center" 
+                       FontSize="20" 
+                       FontWeight="Bold"
+                       Foreground="{StaticResource HeaderTextBrush}"/>
         </Border>
+        <!--#endregion-->
 
-        <Grid Grid.Row="1" Grid.Column="0" Background="#D8B899">
+        <!--#region Боковое меню-->
+        <Grid Grid.Row="1" 
+              Grid.Column="0" 
+              Background="{StaticResource MenuBackgroundBrush}">
+
             <Grid.RowDefinitions>
-                <RowDefinition Height="80"/>
-                <RowDefinition Height="80"/>
-                <RowDefinition Height="80"/>
-                <RowDefinition Height="80"/>
-                <RowDefinition Height="80"/>
-                <RowDefinition Height="80"/>
-                <RowDefinition Height="1*"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
 
-            <Button x:Name="ClientsButton" Grid.Row="0" Content="Клиенты" Height="40" Width="160" HorizontalAlignment="Center" VerticalAlignment="Center" Click="ClientsButton_Click"/>
-            <Button x:Name="OrdersButton" Grid.Row="1" Content="Заказы" Height="40" Width="160" HorizontalAlignment="Center" VerticalAlignment="Center" Click="OrdersButton_Click"/>
-            <Button x:Name="EquipmentButton" Grid.Row="2" Content="Оборудование" Height="40" Width="160" HorizontalAlignment="Center" VerticalAlignment="Center" Click="EquipmentButton_Click"/>
-            <Button x:Name="ServiceButton" Grid.Row="3" Content="Сервисные заявки" Height="40" Width="160" HorizontalAlignment="Center" VerticalAlignment="Center" Click="ServiceButton_Click"/>
-            <Button x:Name="PartsButton" Grid.Row="4" Content="Запчасти" Height="40" Width="160" HorizontalAlignment="Center" VerticalAlignment="Center" Click="PartsButton_Click"/>
-            <Button x:Name="JournalButton" Grid.Row="5" Content="Журнал" Height="40" Width="160" HorizontalAlignment="Center" VerticalAlignment="Center" Click="JournalButton_Click"/>
-        </Grid>
+            <Button x:Name="ClientsButton" 
+                    Grid.Row="0" 
+                    Content="Клиенты"
+                    Style="{StaticResource MenuButtonStyle}"
+                    Margin="20,20,20,10"/>
 
-        <Frame x:Name="MainFrame" Grid.Row="1" Grid.Column="1" NavigationUIVisibility="Hidden"/>
+            <Button x:Name="OrdersButton" 
+                    Grid.Row="1" 
+                    Content="Заказы"
+                    Style="{StaticResource MenuButtonStyle}"
+                    Margin="20,10,20,10"/>
+
+            <Button x:Name="EquipmentButton" 
+                    Grid.Row="2" 
+                    Content="Оборудование"
+                    Style="{StaticResource MenuButtonStyle}"
+                    Margin="20,10,20,10"/>
+
+            <Button x:Name="ServiceButton" 
+                    Grid.Row="3" 
+                    Content="Сервисные заявки"
+                    Style="{StaticResource MenuButtonStyle}"
+                    Margin="20,10,20,10"/>
+
+            <Button x:Name="PartsButton" 
+                    Grid.Row="4" 
+                    Content="Запчасти"
+                    Style="{StaticResource MenuButtonStyle}"
+                    Margin="20,10,20,10"/>
+
+            <Button x:Name="JournalButton" 
+                    Grid.Row="5" 
+                    Content="Журнал"
+                    Style="{StaticResource MenuButtonStyle}"
+                    Margin="20,10,20,10"/>
+        </Grid>
+        <!--#endregion-->
+
+        <!--#region Область контента-->
+        <Frame x:Name="MainFrame" 
+               Grid.Row="1" 
+               Grid.Column="1" 
+               NavigationUIVisibility="Hidden"
+               Background="{StaticResource ContentBackgroundBrush}"/>
+        <!--#endregion-->
     </Grid>
 </Window>
+<!--#endregion-->
