@@ -62,6 +62,11 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="AppData\DbHelper.cs" />
+    <Compile Include="AppData\DialogHelper.cs" />
+    <Compile Include="AppData\NavigationHelper.cs" />
+    <Compile Include="AppData\StringHelper.cs" />
+    <Compile Include="AppData\ValidationHelper.cs" />
     <Compile Include="Model\Clients.cs">
       <DependentUpon>Model1.tt</DependentUpon>
     </Compile>

@@ -1,6 +1,6 @@
+using PolyPrint.AppData;
 using PolyPrint.Model;
-using System;
-using System.Globalization;
+using System.Collections.Generic;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
@@ -9,6 +9,8 @@ namespace PolyPrint.View.Pages
 {
     public partial class AddPartPage : Page
     {
+        private static readonly char MetadataSeparator = '|';
+
         public AddPartPage()
         {
             InitializeComponent();
@@ -19,12 +21,18 @@ namespace PolyPrint.View.Pages
         {
             var items = App.db.Parts
                 .ToList()
-                .Select(p => new
+                .Select(p =>
                 {
-                    ID = p.ID_Part,
-                    Name = p.Name,
-                    Quantity = p.Quantity,
-                    Price = p.Price
+                    ParseMetadata(p.Name, out string partName, out string article, out string supplier);
+                    return new
+                    {
+                        ID = p.ID_Part,
+                        Name = partName,
+                        Article = article,
+                        Supplier = supplier,
+                        Quantity = p.Quantity,
+                        Price = p.Price
+                    };
                 })
                 .OrderBy(p => p.Name)
                 .ToList();
@@ -34,46 +42,49 @@ namespace PolyPrint.View.Pages
 
         private void SavePartButton_Click(object sender, RoutedEventArgs e)
         {
-            string name = NameTextBox.Text?.Trim() ?? string.Empty;
-            if (string.IsNullOrWhiteSpace(name))
+            string name = StringHelper.CapitalizeWords(NameTextBox.Text);
+            string article = StringHelper.SanitizeForMetadata(ArticleTextBox.Text, MetadataSeparator);
+            string supplier = StringHelper.SanitizeForMetadata(SupplierTextBox.Text, MetadataSeparator);
+
+            if (!ValidationHelper.RequireNotEmpty(new Dictionary<string, string>
+                {
+                    { "Наименование", name },
+                    { "Артикул", article },
+                    { "Поставщик", supplier }
+                }, out string requiredError))
             {
-                MessageBox.Show("Введите название запчасти", "PolyPrint", MessageBoxButton.OK, MessageBoxImage.Information);
+                DialogHelper.ShowWarning(requiredError);
                 return;
             }
 
-            string quantityText = QuantityTextBox.Text?.Trim() ?? string.Empty;
-            if (!int.TryParse(quantityText, out int quantity))
+            if (!ValidationHelper.TryParseInt(StringHelper.Normalize(QuantityTextBox.Text), "Количество", out int quantity, out string quantityError))
             {
-                MessageBox.Show("Количество должно быть целым числом", "PolyPrint", MessageBoxButton.OK, MessageBoxImage.Information);
+                DialogHelper.ShowWarning(quantityError);
                 return;
             }
 
-            string priceText = PriceTextBox.Text?.Trim() ?? string.Empty;
-            if (!decimal.TryParse(priceText, NumberStyles.Number, CultureInfo.CurrentCulture, out decimal price) &&
-                !decimal.TryParse(priceText, NumberStyles.Number, CultureInfo.InvariantCulture, out price))
+            if (!ValidationHelper.TryParseDecimal(StringHelper.Normalize(PriceTextBox.Text), "Цена", out decimal price, out string priceError))
             {
-                MessageBox.Show("Стоимость указана некорректно", "PolyPrint", MessageBoxButton.OK, MessageBoxImage.Information);
+                DialogHelper.ShowWarning(priceError);
                 return;
             }
 
             Parts part = new Parts
             {
-                Name = name,
+                Name = ComposeMetadata(name, article, supplier),
                 Quantity = quantity,
                 Price = price
             };
 
-            try
+            if (DbHelper.SaveEntity(part, (db, entity) => db.Parts.Add(entity), out string errorMessage))
             {
-                App.db.Parts.Add(part);
-                App.db.SaveChanges();
-                MessageBox.Show("Запчасть сохранена", "PolyPrint", MessageBoxButton.OK, MessageBoxImage.Information);
+                DialogHelper.ShowSuccess("Запчасть сохранена.");
                 LoadParts();
                 ClearForm();
             }
-            catch (Exception ex)
+            else
             {
-                MessageBox.Show($"Не удалось сохранить запчасть. {ex.Message}", "PolyPrint", MessageBoxButton.OK, MessageBoxImage.Error);
+                DialogHelper.ShowError($"Не удалось сохранить запчасть. {errorMessage}");
             }
         }
 
@@ -85,9 +96,54 @@ namespace PolyPrint.View.Pages
         private void ClearForm()
         {
             NameTextBox.Text = string.Empty;
+            ArticleTextBox.Text = string.Empty;
+            SupplierTextBox.Text = string.Empty;
             QuantityTextBox.Text = string.Empty;
             PriceTextBox.Text = string.Empty;
             NameTextBox.Focus();
+        }
+
+        private static string ComposeMetadata(string name, string article, string supplier)
+        {
+            string sanitizedName = StringHelper.SanitizeForMetadata(name, MetadataSeparator);
+            string sanitizedArticle = StringHelper.SanitizeForMetadata(article, MetadataSeparator);
+            string sanitizedSupplier = StringHelper.SanitizeForMetadata(supplier, MetadataSeparator);
+            return string.Join(MetadataSeparator.ToString(), new[] { sanitizedName, sanitizedArticle, sanitizedSupplier });
+        }
+
+        private static void ParseMetadata(string storedValue, out string name, out string article, out string supplier)
+        {
+            name = storedValue;
+            article = string.Empty;
+            supplier = string.Empty;
+
+            if (string.IsNullOrWhiteSpace(storedValue))
+            {
+                name = string.Empty;
+                return;
+            }
+
+            string[] parts = storedValue.Split(MetadataSeparator);
+            if (parts.Length == 1)
+            {
+                name = parts[0];
+                return;
+            }
+
+            if (parts.Length > 0)
+            {
+                name = parts[0];
+            }
+
+            if (parts.Length > 1)
+            {
+                article = parts[1];
+            }
+
+            if (parts.Length > 2)
+            {
+                supplier = parts[2];
+            }
         }
     }
 }

@@ -32,7 +32,7 @@
                         </StackPanel>
                         <StackPanel Margin="0,0,24,0">
                             <TextBlock Text="Статус" FontWeight="SemiBold"/>
-                            <ComboBox x:Name="StatusComboBox" MinWidth="200"/>
+                            <ComboBox x:Name="StatusComboBox" MinWidth="200" IsEditable="True"/>
                         </StackPanel>
                         <StackPanel>
                             <TextBlock Text="Сумма, ₽" FontWeight="SemiBold"/>

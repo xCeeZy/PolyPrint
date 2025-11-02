@@ -1,7 +1,7 @@
+using PolyPrint.AppData;
 using PolyPrint.Model;
 using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
@@ -56,50 +56,47 @@ namespace PolyPrint.View.Pages
         {
             if (!(ClientComboBox.SelectedItem is Clients selectedClient))
             {
-                MessageBox.Show("Выберите клиента", "PolyPrint", MessageBoxButton.OK, MessageBoxImage.Information);
+                DialogHelper.ShowWarning("Выберите клиента.");
                 return;
             }
 
-            if (!(OrderDatePicker.SelectedDate is DateTime orderDate))
+            if (!ValidationHelper.EnsureDateSelected(OrderDatePicker.SelectedDate, "Дата заказа", out string dateError))
             {
-                MessageBox.Show("Укажите дату заказа", "PolyPrint", MessageBoxButton.OK, MessageBoxImage.Information);
+                DialogHelper.ShowWarning(dateError);
                 return;
             }
 
-            string status = StatusComboBox.SelectedItem as string ?? StatusComboBox.Text?.Trim() ?? string.Empty;
+            string status = StringHelper.Normalize(StatusComboBox.SelectedItem as string ?? StatusComboBox.Text);
             if (string.IsNullOrWhiteSpace(status))
             {
-                MessageBox.Show("Выберите статус заказа", "PolyPrint", MessageBoxButton.OK, MessageBoxImage.Information);
+                DialogHelper.ShowWarning("Выберите статус заказа.");
                 return;
             }
 
-            string totalText = TotalTextBox.Text?.Trim() ?? string.Empty;
-            if (!decimal.TryParse(totalText, NumberStyles.Number, CultureInfo.CurrentCulture, out decimal total) &&
-                !decimal.TryParse(totalText, NumberStyles.Number, CultureInfo.InvariantCulture, out total))
+            string totalText = StringHelper.Normalize(TotalTextBox.Text);
+            if (!ValidationHelper.TryParseDecimal(totalText, "Сумма", out decimal total, out string totalError))
             {
-                MessageBox.Show("Некорректное значение суммы", "PolyPrint", MessageBoxButton.OK, MessageBoxImage.Information);
+                DialogHelper.ShowWarning(totalError);
                 return;
             }
 
             Orders order = new Orders
             {
                 ID_Client = selectedClient.ID_Client,
-                Order_Date = orderDate,
+                Order_Date = OrderDatePicker.SelectedDate.Value,
                 Status = status,
                 Total = total
             };
 
-            try
+            if (DbHelper.SaveEntity(order, (db, entity) => db.Orders.Add(entity), out string errorMessage))
             {
-                App.db.Orders.Add(order);
-                App.db.SaveChanges();
-                MessageBox.Show("Заказ успешно сохранен", "PolyPrint", MessageBoxButton.OK, MessageBoxImage.Information);
+                DialogHelper.ShowSuccess("Заказ успешно сохранен.");
                 LoadOrders();
                 ClearForm();
             }
-            catch (Exception ex)
+            else
             {
-                MessageBox.Show($"Не удалось сохранить заказ. {ex.Message}", "PolyPrint", MessageBoxButton.OK, MessageBoxImage.Error);
+                DialogHelper.ShowError($"Не удалось сохранить заказ. {errorMessage}");
             }
         }
 
@@ -113,6 +110,7 @@ namespace PolyPrint.View.Pages
             ClientComboBox.SelectedIndex = -1;
             OrderDatePicker.SelectedDate = DateTime.Today;
             StatusComboBox.SelectedIndex = -1;
+            StatusComboBox.Text = string.Empty;
             TotalTextBox.Text = string.Empty;
         }
     }

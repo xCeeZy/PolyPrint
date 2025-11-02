@@ -1,3 +1,4 @@
+using PolyPrint.AppData;
 using PolyPrint.View.Pages;
 using System.Collections.Generic;
 using System.Windows;
@@ -36,9 +37,16 @@ namespace PolyPrint.View.Windows
                 return;
             }
 
-            MainFrame.Navigate(page);
+            bool navigated = NavigationHelper.Navigate(MainFrame, page);
+            Page currentPage = navigated ? page : MainFrame.Content as Page ?? page;
+
+            if (navigated)
+            {
+                NavigationHelper.ClearJournal(MainFrame);
+            }
+
             PageTitleTextBlock.Text = title;
-            PageSubtitleTextBlock.Text = page.Tag as string ?? string.Empty;
+            PageSubtitleTextBlock.Text = currentPage.Tag as string ?? string.Empty;
             SetActiveNavigation(sourceButton);
         }
 
@@ -96,6 +104,16 @@ namespace PolyPrint.View.Windows
         private void WorksButton_Click(object sender, RoutedEventArgs e)
         {
             NavigateToPage(new AddWorkPage(), WorksButton, "Работы");
+        }
+
+        private void AboutButton_Click(object sender, RoutedEventArgs e)
+        {
+            AboutWindow aboutWindow = new AboutWindow
+            {
+                Owner = this
+            };
+
+            aboutWindow.ShowDialog();
         }
     }
 }

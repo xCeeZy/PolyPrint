@@ -1,4 +1,6 @@
+using PolyPrint.AppData;
 using PolyPrint.Model;
+using System.Collections.Generic;
 using System.Linq;
 using System.Windows;
 
@@ -14,8 +16,18 @@ namespace PolyPrint.View.Windows
 
         private void LoginButton_Click(object sender, RoutedEventArgs e)
         {
-            string login = LoginTextBox.Text;
-            string password = PasswordBox.Password;
+            string login = StringHelper.Normalize(LoginTextBox.Text);
+            string password = PasswordBox.Password ?? string.Empty;
+
+            if (!ValidationHelper.RequireNotEmpty(new Dictionary<string, string>
+                {
+                    { "Логин", login },
+                    { "Пароль", password }
+                }, out string requiredError))
+            {
+                DialogHelper.ShowWarning(requiredError);
+                return;
+            }
 
             Users user = App.db.Users.FirstOrDefault(u => u.Login == login && u.Password == password);
 
@@ -27,7 +39,7 @@ namespace PolyPrint.View.Windows
             }
             else
             {
-                MessageBox.Show("Неверный логин или пароль", "PolyPrint", MessageBoxButton.OK, MessageBoxImage.Warning);
+                DialogHelper.ShowWarning("Неверный логин или пароль.");
             }
         }
 

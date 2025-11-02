@@ -19,15 +19,23 @@
 
                     <UniformGrid Columns="2" Margin="0,24,0,0">
                         <StackPanel Margin="0,0,24,16">
-                            <TextBlock Text="Название" FontWeight="SemiBold"/>
+                            <TextBlock Text="Наименование" FontWeight="SemiBold"/>
                             <TextBox x:Name="NameTextBox" MinWidth="200"/>
                         </StackPanel>
                         <StackPanel Margin="0,0,0,16">
+                            <TextBlock Text="Артикул" FontWeight="SemiBold"/>
+                            <TextBox x:Name="ArticleTextBox" MinWidth="200"/>
+                        </StackPanel>
+                        <StackPanel Margin="0,0,24,0">
+                            <TextBlock Text="Поставщик" FontWeight="SemiBold"/>
+                            <TextBox x:Name="SupplierTextBox" MinWidth="200"/>
+                        </StackPanel>
+                        <StackPanel>
                             <TextBlock Text="Количество" FontWeight="SemiBold"/>
                             <TextBox x:Name="QuantityTextBox" MinWidth="200"/>
                         </StackPanel>
                         <StackPanel Margin="0,0,24,0">
-                            <TextBlock Text="Стоимость, ₽" FontWeight="SemiBold"/>
+                            <TextBlock Text="Цена, ₽" FontWeight="SemiBold"/>
                             <TextBox x:Name="PriceTextBox" MinWidth="200"/>
                         </StackPanel>
                     </UniformGrid>
@@ -57,9 +65,11 @@
                               IsReadOnly="True">
                         <DataGrid.Columns>
                             <DataGridTextColumn Header="ID" Binding="{Binding ID}" Width="80"/>
-                            <DataGridTextColumn Header="Название" Binding="{Binding Name}" Width="*"/>
+                            <DataGridTextColumn Header="Наименование" Binding="{Binding Name}" Width="*"/>
+                            <DataGridTextColumn Header="Артикул" Binding="{Binding Article}" Width="160"/>
+                            <DataGridTextColumn Header="Поставщик" Binding="{Binding Supplier}" Width="*"/>
                             <DataGridTextColumn Header="Количество" Binding="{Binding Quantity}" Width="120"/>
-                            <DataGridTextColumn Header="Стоимость" Binding="{Binding Price, StringFormat=N2}" Width="140"/>
+                            <DataGridTextColumn Header="Цена" Binding="{Binding Price, StringFormat=N2}" Width="140"/>
                         </DataGrid.Columns>
                     </DataGrid>
                 </StackPanel>

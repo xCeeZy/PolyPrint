@@ -1,7 +1,7 @@
+using PolyPrint.AppData;
 using PolyPrint.Model;
 using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
@@ -69,22 +69,21 @@ namespace PolyPrint.View.Pages
             }
             if (selectedRequest == null)
             {
-                MessageBox.Show("Выберите заявку", "PolyPrint", MessageBoxButton.OK, MessageBoxImage.Information);
+                DialogHelper.ShowWarning("Выберите заявку.");
                 return;
             }
 
-            string description = DescriptionTextBox.Text?.Trim() ?? string.Empty;
+            string description = StringHelper.NormalizeMultiline(DescriptionTextBox.Text);
             if (string.IsNullOrWhiteSpace(description))
             {
-                MessageBox.Show("Опишите выполненные работы", "PolyPrint", MessageBoxButton.OK, MessageBoxImage.Information);
+                DialogHelper.ShowWarning("Опишите выполненные работы.");
                 return;
             }
 
-            string costText = CostTextBox.Text?.Trim() ?? string.Empty;
-            if (!decimal.TryParse(costText, NumberStyles.Number, CultureInfo.CurrentCulture, out decimal cost) &&
-                !decimal.TryParse(costText, NumberStyles.Number, CultureInfo.InvariantCulture, out cost))
+            string costText = StringHelper.Normalize(CostTextBox.Text);
+            if (!ValidationHelper.TryParseDecimal(costText, "Стоимость", out decimal cost, out string costError))
             {
-                MessageBox.Show("Стоимость указана некорректно", "PolyPrint", MessageBoxButton.OK, MessageBoxImage.Information);
+                DialogHelper.ShowWarning(costError);
                 return;
             }
 
@@ -98,17 +97,15 @@ namespace PolyPrint.View.Pages
                 Work_Date = workDate
             };
 
-            try
+            if (DbHelper.SaveEntity(work, (db, entity) => db.Works.Add(entity), out string errorMessage))
             {
-                App.db.Works.Add(work);
-                App.db.SaveChanges();
-                MessageBox.Show("Работа сохранена", "PolyPrint", MessageBoxButton.OK, MessageBoxImage.Information);
+                DialogHelper.ShowSuccess("Работа сохранена.");
                 LoadWorks();
                 ClearForm();
             }
-            catch (Exception ex)
+            else
             {
-                MessageBox.Show($"Не удалось сохранить работу. {ex.Message}", "PolyPrint", MessageBoxButton.OK, MessageBoxImage.Error);
+                DialogHelper.ShowError($"Не удалось сохранить работу. {errorMessage}");
             }
         }
 

@@ -1,3 +1,4 @@
+using PolyPrint.AppData;
 using PolyPrint.Model;
 using System;
 using System.Collections.Generic;
@@ -9,18 +10,20 @@ namespace PolyPrint.View.Pages
 {
     public partial class AddEquipmentPage : Page
     {
-        private readonly List<string> _conditions = new List<string>
+        private static readonly char MetadataSeparator = '|';
+
+        private readonly List<string> _statusOptions = new List<string>
         {
-            "Новое",
-            "В эксплуатации",
-            "Требует ремонта",
-            "Списано"
+            "Установлено",
+            "На обслуживании",
+            "Ожидает установки",
+            "Снято с обслуживания"
         };
 
         public AddEquipmentPage()
         {
             InitializeComponent();
-            ConditionComboBox.ItemsSource = _conditions;
+            StatusComboBox.ItemsSource = _statusOptions;
             LoadClients();
             LoadEquipment();
         }
@@ -34,58 +37,90 @@ namespace PolyPrint.View.Pages
 
         private void LoadEquipment()
         {
+            var statusSet = new HashSet<string>(_statusOptions);
+
             var items = App.db.Equipment
                 .ToList()
-                .Select(e => new
+                .Select(e =>
                 {
-                    ID = e.ID_Equipment,
-                    Name = e.Name,
-                    Model = e.Model,
-                    Serial = e.Serial_Number,
-                    Client = e.Clients != null ? e.Clients.Organization_Name : string.Empty,
-                    Condition = e.Condition
+                    ParseCondition(e.Condition, out string status, out string supplier, out DateTime? installationDate);
+                    if (!string.IsNullOrWhiteSpace(status) && !statusSet.Contains(status))
+                    {
+                        _statusOptions.Add(status);
+                        statusSet.Add(status);
+                    }
+                    return new
+                    {
+                        ID = e.ID_Equipment,
+                        Name = e.Name,
+                        Model = e.Model,
+                        Serial = e.Serial_Number,
+                        Client = e.Clients != null ? e.Clients.Organization_Name : string.Empty,
+                        Supplier = supplier,
+                        InstallationDate = installationDate,
+                        Status = status
+                    };
                 })
                 .OrderByDescending(e => e.ID)
                 .ToList();
 
             EquipmentGrid.ItemsSource = items;
+            StatusComboBox.ItemsSource = null;
+            StatusComboBox.ItemsSource = _statusOptions;
         }
 
         private void SaveEquipmentButton_Click(object sender, RoutedEventArgs e)
         {
-            string name = NameTextBox.Text?.Trim() ?? string.Empty;
-            if (string.IsNullOrWhiteSpace(name))
+            string name = StringHelper.Normalize(NameTextBox.Text);
+            string model = StringHelper.Normalize(ModelTextBox.Text);
+            string serial = StringHelper.Normalize(SerialTextBox.Text);
+            string supplier = StringHelper.SanitizeForMetadata(SupplierTextBox.Text, MetadataSeparator);
+            string status = StringHelper.Normalize(StatusComboBox.SelectedItem as string ?? StatusComboBox.Text);
+            DateTime? installationDate = InstallationDatePicker.SelectedDate;
+
+            if (!ValidationHelper.RequireNotEmpty(new Dictionary<string, string>
+                {
+                    { "Название", name },
+                    { "Модель", model },
+                    { "Серийный номер", serial },
+                    { "Поставщик", supplier },
+                    { "Статус", status }
+                }, out string requiredError))
             {
-                MessageBox.Show("Введите название оборудования", "PolyPrint", MessageBoxButton.OK, MessageBoxImage.Information);
+                DialogHelper.ShowWarning(requiredError);
                 return;
             }
 
-            string model = ModelTextBox.Text?.Trim();
-            string serial = SerialTextBox.Text?.Trim();
-            string condition = ConditionComboBox.Text?.Trim();
+            if (!ValidationHelper.EnsureDateSelected(installationDate, "Дата установки", out string dateError))
+            {
+                DialogHelper.ShowWarning(dateError);
+                return;
+            }
 
-            Clients selectedClient = ClientComboBox.SelectedItem as Clients;
+            if (!(ClientComboBox.SelectedItem is Clients selectedClient))
+            {
+                DialogHelper.ShowWarning("Выберите клиента.");
+                return;
+            }
 
             Equipment equipment = new Equipment
             {
                 Name = name,
                 Model = model,
                 Serial_Number = serial,
-                ID_Client = selectedClient?.ID_Client,
-                Condition = condition
+                ID_Client = selectedClient.ID_Client,
+                Condition = ComposeCondition(status, supplier, installationDate)
             };
 
-            try
+            if (DbHelper.SaveEntity(equipment, (db, entity) => db.Equipment.Add(entity), out string errorMessage))
             {
-                App.db.Equipment.Add(equipment);
-                App.db.SaveChanges();
-                MessageBox.Show("Оборудование сохранено", "PolyPrint", MessageBoxButton.OK, MessageBoxImage.Information);
+                DialogHelper.ShowSuccess("Оборудование сохранено.");
                 LoadEquipment();
                 ClearForm();
             }
-            catch (Exception ex)
+            else
             {
-                MessageBox.Show($"Не удалось сохранить оборудование. {ex.Message}", "PolyPrint", MessageBoxButton.OK, MessageBoxImage.Error);
+                DialogHelper.ShowError($"Не удалось сохранить оборудование. {errorMessage}");
             }
         }
 
@@ -99,9 +134,48 @@ namespace PolyPrint.View.Pages
             NameTextBox.Text = string.Empty;
             ModelTextBox.Text = string.Empty;
             SerialTextBox.Text = string.Empty;
-            ConditionComboBox.Text = string.Empty;
+            SupplierTextBox.Text = string.Empty;
+            InstallationDatePicker.SelectedDate = null;
             ClientComboBox.SelectedIndex = -1;
+            StatusComboBox.SelectedIndex = -1;
+            StatusComboBox.Text = string.Empty;
             NameTextBox.Focus();
+        }
+
+        private static string ComposeCondition(string status, string supplier, DateTime? installationDate)
+        {
+            string sanitizedStatus = StringHelper.SanitizeForMetadata(status, MetadataSeparator);
+            string sanitizedSupplier = StringHelper.SanitizeForMetadata(supplier, MetadataSeparator);
+            string datePart = installationDate.HasValue ? installationDate.Value.ToString("yyyy-MM-dd") : string.Empty;
+            return string.Join(MetadataSeparator.ToString(), new[] { sanitizedStatus, sanitizedSupplier, datePart });
+        }
+
+        private static void ParseCondition(string condition, out string status, out string supplier, out DateTime? installationDate)
+        {
+            status = string.Empty;
+            supplier = string.Empty;
+            installationDate = null;
+
+            if (string.IsNullOrWhiteSpace(condition))
+            {
+                return;
+            }
+
+            string[] parts = condition.Split(MetadataSeparator);
+            if (parts.Length > 0)
+            {
+                status = parts[0];
+            }
+
+            if (parts.Length > 1)
+            {
+                supplier = parts[1];
+            }
+
+            if (parts.Length > 2 && DateTime.TryParse(parts[2], out DateTime parsedDate))
+            {
+                installationDate = parsedDate;
+            }
         }
     }
 }

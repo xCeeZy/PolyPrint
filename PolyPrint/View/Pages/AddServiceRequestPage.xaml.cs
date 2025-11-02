@@ -1,3 +1,4 @@
+using PolyPrint.AppData;
 using PolyPrint.Model;
 using System;
 using System.Collections.Generic;
@@ -79,21 +80,21 @@ namespace PolyPrint.View.Pages
         {
             if (!(ClientComboBox.SelectedItem is Clients client))
             {
-                MessageBox.Show("Выберите клиента", "PolyPrint", MessageBoxButton.OK, MessageBoxImage.Information);
+                DialogHelper.ShowWarning("Выберите клиента.");
                 return;
             }
 
-            string status = StatusComboBox.SelectedItem as string ?? StatusComboBox.Text?.Trim() ?? string.Empty;
+            string status = StringHelper.Normalize(StatusComboBox.SelectedItem as string ?? StatusComboBox.Text);
             if (string.IsNullOrWhiteSpace(status))
             {
-                MessageBox.Show("Укажите статус заявки", "PolyPrint", MessageBoxButton.OK, MessageBoxImage.Information);
+                DialogHelper.ShowWarning("Укажите статус заявки.");
                 return;
             }
 
-            string description = ProblemDescriptionTextBox.Text?.Trim() ?? string.Empty;
+            string description = StringHelper.NormalizeMultiline(ProblemDescriptionTextBox.Text);
             if (string.IsNullOrWhiteSpace(description))
             {
-                MessageBox.Show("Опишите проблему", "PolyPrint", MessageBoxButton.OK, MessageBoxImage.Information);
+                DialogHelper.ShowWarning("Опишите проблему.");
                 return;
             }
 
@@ -111,17 +112,15 @@ namespace PolyPrint.View.Pages
                 ID_Master = selectedMaster?.ID_User
             };
 
-            try
+            if (DbHelper.SaveEntity(request, (db, entity) => db.Service_Requests.Add(entity), out string errorMessage))
             {
-                App.db.Service_Requests.Add(request);
-                App.db.SaveChanges();
-                MessageBox.Show("Заявка сохранена", "PolyPrint", MessageBoxButton.OK, MessageBoxImage.Information);
+                DialogHelper.ShowSuccess("Заявка сохранена.");
                 LoadRequests();
                 ClearForm();
             }
-            catch (Exception ex)
+            else
             {
-                MessageBox.Show($"Не удалось сохранить заявку. {ex.Message}", "PolyPrint", MessageBoxButton.OK, MessageBoxImage.Error);
+                DialogHelper.ShowError($"Не удалось сохранить заявку. {errorMessage}");
             }
         }
 
@@ -135,6 +134,7 @@ namespace PolyPrint.View.Pages
             ClientComboBox.SelectedIndex = -1;
             EquipmentComboBox.ItemsSource = null;
             StatusComboBox.SelectedIndex = -1;
+            StatusComboBox.Text = string.Empty;
             MasterComboBox.SelectedIndex = -1;
             ProblemDescriptionTextBox.Text = string.Empty;
             CreatedDatePicker.SelectedDate = DateTime.Today;

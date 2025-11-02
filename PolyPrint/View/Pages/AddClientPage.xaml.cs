@@ -1,5 +1,6 @@
+using PolyPrint.AppData;
 using PolyPrint.Model;
-using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
@@ -16,19 +17,48 @@ namespace PolyPrint.View.Pages
 
         private void LoadClients()
         {
-            ClientsGrid.ItemsSource = App.db.Clients.ToList();
+            var items = App.db.Clients
+                .ToList()
+                .Select(c => new
+                {
+                    c.Organization_Name,
+                    c.Contact_Name,
+                    c.Email,
+                    Phone = string.IsNullOrWhiteSpace(c.Phone) ? string.Empty : c.Phone
+                })
+                .OrderBy(c => c.Organization_Name)
+                .ToList();
+
+            ClientsGrid.ItemsSource = items;
         }
 
         private void SaveClientButton_Click(object sender, RoutedEventArgs e)
         {
-            string organization = OrganizationTextBox.Text?.Trim() ?? string.Empty;
-            string contact = ContactTextBox.Text?.Trim() ?? string.Empty;
-            string phone = PhoneTextBox.Text?.Trim() ?? string.Empty;
-            string email = EmailTextBox.Text?.Trim() ?? string.Empty;
+            string organization = StringHelper.CapitalizeWords(OrganizationTextBox.Text);
+            string contact = StringHelper.CapitalizeWords(ContactTextBox.Text);
+            string phoneInput = StringHelper.Normalize(PhoneTextBox.Text);
+            string email = StringHelper.Normalize(EmailTextBox.Text);
 
-            if (string.IsNullOrWhiteSpace(organization))
+            if (!ValidationHelper.RequireNotEmpty(new Dictionary<string, string>
+                {
+                    { "Название организации", organization },
+                    { "Контактное лицо", contact },
+                    { "Телефон", phoneInput }
+                }, out string requiredError))
             {
-                MessageBox.Show("Введите название организации", "PolyPrint", MessageBoxButton.OK, MessageBoxImage.Information);
+                DialogHelper.ShowWarning(requiredError);
+                return;
+            }
+
+            if (!ValidationHelper.ValidatePhone(phoneInput, out string phoneError))
+            {
+                DialogHelper.ShowWarning(phoneError);
+                return;
+            }
+
+            if (!ValidationHelper.ValidateEmail(email, out string emailError))
+            {
+                DialogHelper.ShowWarning(emailError);
                 return;
             }
 
@@ -36,21 +66,19 @@ namespace PolyPrint.View.Pages
             {
                 Organization_Name = organization,
                 Contact_Name = contact,
-                Phone = phone,
+                Phone = StringHelper.NormalizePhone(phoneInput),
                 Email = email
             };
 
-            try
+            if (DbHelper.SaveEntity(client, (db, entity) => db.Clients.Add(entity), out string errorMessage))
             {
-                App.db.Clients.Add(client);
-                App.db.SaveChanges();
-                MessageBox.Show("Клиент успешно добавлен", "PolyPrint", MessageBoxButton.OK, MessageBoxImage.Information);
+                DialogHelper.ShowSuccess("Клиент успешно добавлен.");
                 LoadClients();
                 ClearForm();
             }
-            catch (Exception ex)
+            else
             {
-                MessageBox.Show($"Не удалось сохранить клиента. {ex.Message}", "PolyPrint", MessageBoxButton.OK, MessageBoxImage.Error);
+                DialogHelper.ShowError($"Не удалось сохранить клиента. {errorMessage}");
             }
         }
 
