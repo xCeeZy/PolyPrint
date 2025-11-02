@@ -16,138 +16,419 @@ using System.Windows.Shapes;
 
 namespace PolyPrint.View.Pages
 {
-    public sealed class OrderGridItem
-    {
-        public int ID_Order { get; set; }
-        public string Client_Name { get; set; }
-        public System.DateTime Order_Date { get; set; }
-        public string Status { get; set; }
-        public decimal Total { get; set; }
-    }
-
-    public sealed class RequestGridItem
-    {
-        public int ID_Request { get; set; }
-        public string Client_Name { get; set; }
-        public string Equipment_Name { get; set; }
-        public System.DateTime Created_Date { get; set; }
-        public string Problem_Description { get; set; }
-        public string Status { get; set; }
-    }
-
-    public sealed class WorkGridItem
-    {
-        public int ID_Work { get; set; }
-        public string Client_Name { get; set; }
-        public string Equipment_Name { get; set; }
-        public System.DateTime Work_Date { get; set; }
-        public string Description { get; set; }
-        public decimal Cost { get; set; }
-    }
-
     public partial class JournalPage : Page
     {
+        #region Инициализация
+
         public JournalPage()
         {
             InitializeComponent();
-            TableSelector.SelectedIndex = 0;
+
+            TableSelector.SelectionChanged += TableSelector_SelectionChanged;
+            SearchBox.TextChanged += SearchBox_TextChanged;
+            RefreshButton.Click += RefreshButton_Click;
+
             LoadOrders();
         }
 
-        private void LoadOrders()
-        {
-            List<Orders> orders = App.db.Orders.ToList();
-            List<OrderGridItem> items = new List<OrderGridItem>();
+        #endregion
 
-            for (int i = 0; i < orders.Count; i++)
-            {
-                Orders o = orders[i];
-                string clientName = o.Clients != null ? o.Clients.Organization_Name : string.Empty;
-
-                OrderGridItem item = new OrderGridItem
-                {
-                    ID_Order = o.ID_Order,
-                    Client_Name = clientName,
-                    Order_Date = o.Order_Date,
-                    Status = o.Status,
-                    Total = o.Total
-                };
-                items.Add(item);
-            }
-
-            MainGrid.ItemsSource = items;
-        }
-
-        private void LoadRequests()
-        {
-            List<Service_Requests> requests = App.db.Service_Requests.ToList();
-            List<RequestGridItem> items = new List<RequestGridItem>();
-
-            for (int i = 0; i < requests.Count; i++)
-            {
-                Service_Requests r = requests[i];
-                string clientName = r.Clients != null ? r.Clients.Organization_Name : string.Empty;
-                string equipmentName = r.Equipment != null ? r.Equipment.Name : string.Empty;
-
-                RequestGridItem item = new RequestGridItem
-                {
-                    ID_Request = r.ID_Request,
-                    Client_Name = clientName,
-                    Equipment_Name = equipmentName,
-                    Created_Date = r.Created_Date,
-                    Problem_Description = r.Problem_Description,
-                    Status = r.Status
-                };
-                items.Add(item);
-            }
-
-            MainGrid.ItemsSource = items;
-        }
-
-        private void LoadWorks()
-        {
-            List<Works> works = App.db.Works.ToList();
-            List<WorkGridItem> items = new List<WorkGridItem>();
-
-            for (int i = 0; i < works.Count; i++)
-            {
-                Works w = works[i];
-                string clientName = w.Service_Requests != null && w.Service_Requests.Clients != null
-                    ? w.Service_Requests.Clients.Organization_Name
-                    : string.Empty;
-                string equipmentName = w.Service_Requests != null && w.Service_Requests.Equipment != null
-                    ? w.Service_Requests.Equipment.Name
-                    : string.Empty;
-
-                WorkGridItem item = new WorkGridItem
-                {
-                    ID_Work = w.ID_Work,
-                    Client_Name = clientName,
-                    Equipment_Name = equipmentName,
-                    Work_Date = w.Work_Date,
-                    Description = w.Description,
-                    Cost = w.Cost
-                };
-                items.Add(item);
-            }
-
-            MainGrid.ItemsSource = items;
-        }
+        #region Загрузка данных
 
         private void TableSelector_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            if (TableSelector.SelectedIndex == 0)
+            if (TableSelector.SelectedIndex < 0)
             {
-                LoadOrders();
+                return;
             }
-            else if (TableSelector.SelectedIndex == 1)
+
+            SearchBox.Clear();
+
+            switch (TableSelector.SelectedIndex)
             {
-                LoadRequests();
-            }
-            else if (TableSelector.SelectedIndex == 2)
-            {
-                LoadWorks();
+                case 0:
+                    LoadOrders();
+                    break;
+                case 1:
+                    LoadServiceRequests();
+                    break;
+                case 2:
+                    LoadWorks();
+                    break;
+                case 3:
+                    LoadEquipment();
+                    break;
+                case 4:
+                    LoadClients();
+                    break;
             }
         }
+
+        private void RefreshButton_Click(object sender, RoutedEventArgs e)
+        {
+            SearchBox.Clear();
+            TableSelector_SelectionChanged(null, null);
+        }
+
+        #endregion
+
+        #region Загрузка заказов
+
+        private void LoadOrders()
+        {
+            try
+            {
+                List<OrderGridItem> orders = App.db.Orders
+                    .ToList()
+                    .Select(o => new OrderGridItem
+                    {
+                        ID = o.ID_Order,
+                        Client = o.Clients.Organization_Name,
+                        OrderDate = o.Order_Date.ToString("dd.MM.yyyy"),
+                        Status = o.Status,
+                        Total = o.Total.ToString("N2") + " ₽"
+                    })
+                    .ToList();
+
+                MainGrid.ItemsSource = orders;
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Ошибка загрузки заказов:\n{ex.Message}",
+                    "Ошибка",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Error);
+            }
+        }
+
+        #endregion
+
+        #region Загрузка сервисных заявок
+
+        private void LoadServiceRequests()
+        {
+            try
+            {
+                List<ServiceRequestGridItem> requests = App.db.Service_Requests
+                    .ToList()
+                    .Select(sr => new ServiceRequestGridItem
+                    {
+                        ID = sr.ID_Request,
+                        Client = sr.Clients.Organization_Name,
+                        Equipment = sr.Equipment?.Name ?? "—",
+                        CreatedDate = sr.Created_Date.ToString("dd.MM.yyyy"),
+                        Problem = sr.Problem_Description,
+                        Status = sr.Status,
+                        Master = sr.Users?.Login ?? "—"
+                    })
+                    .ToList();
+
+                MainGrid.ItemsSource = requests;
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Ошибка загрузки заявок:\n{ex.Message}",
+                    "Ошибка",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Error);
+            }
+        }
+
+        #endregion
+
+        #region Загрузка выполненных работ
+
+        private void LoadWorks()
+        {
+            try
+            {
+                List<WorkGridItem> works = App.db.Works
+                    .ToList()
+                    .Select(w => new WorkGridItem
+                    {
+                        ID = w.ID_Work,
+                        RequestID = w.ID_Request,
+                        Description = w.Description,
+                        Cost = w.Cost.ToString("N2") + " ₽",
+                        WorkDate = w.Work_Date.ToString("dd.MM.yyyy")
+                    })
+                    .ToList();
+
+                MainGrid.ItemsSource = works;
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Ошибка загрузки работ:\n{ex.Message}",
+                    "Ошибка",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Error);
+            }
+        }
+
+        #endregion
+
+        #region Загрузка оборудования
+
+        private void LoadEquipment()
+        {
+            try
+            {
+                List<EquipmentGridItem> equipment = App.db.Equipment
+                    .ToList()
+                    .Select(eq => new EquipmentGridItem
+                    {
+                        ID = eq.ID_Equipment,
+                        Name = eq.Name,
+                        Model = eq.Model,
+                        SerialNumber = eq.Serial_Number,
+                        Client = eq.Clients?.Organization_Name ?? "—",
+                        Condition = eq.Condition
+                    })
+                    .ToList();
+
+                MainGrid.ItemsSource = equipment;
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Ошибка загрузки оборудования:\n{ex.Message}",
+                    "Ошибка",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Error);
+            }
+        }
+
+        #endregion
+
+        #region Загрузка клиентов
+
+        private void LoadClients()
+        {
+            try
+            {
+                List<ClientGridItem> clients = App.db.Clients
+                    .ToList()
+                    .Select(c => new ClientGridItem
+                    {
+                        ID = c.ID_Client,
+                        OrganizationName = c.Organization_Name,
+                        ContactName = c.Contact_Name,
+                        Phone = c.Phone,
+                        Email = c.Email
+                    })
+                    .ToList();
+
+                MainGrid.ItemsSource = clients;
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Ошибка загрузки клиентов:\n{ex.Message}",
+                    "Ошибка",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Error);
+            }
+        }
+
+        #endregion
+
+        #region Поиск
+
+        private void SearchBox_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            string searchText = SearchBox.Text.ToLower();
+
+            if (string.IsNullOrWhiteSpace(searchText))
+            {
+                TableSelector_SelectionChanged(null, null);
+                return;
+            }
+
+            if (MainGrid.ItemsSource == null)
+            {
+                return;
+            }
+
+            switch (TableSelector.SelectedIndex)
+            {
+                case 0:
+                    FilterOrders(searchText);
+                    break;
+                case 1:
+                    FilterServiceRequests(searchText);
+                    break;
+                case 2:
+                    FilterWorks(searchText);
+                    break;
+                case 3:
+                    FilterEquipment(searchText);
+                    break;
+                case 4:
+                    FilterClients(searchText);
+                    break;
+            }
+        }
+
+        private void FilterOrders(string searchText)
+        {
+            List<OrderGridItem> filtered = App.db.Orders
+                .ToList()
+                .Where(o =>
+                    o.Clients.Organization_Name.ToLower().Contains(searchText) ||
+                    o.Status.ToLower().Contains(searchText) ||
+                    o.ID_Order.ToString().Contains(searchText))
+                .Select(o => new OrderGridItem
+                {
+                    ID = o.ID_Order,
+                    Client = o.Clients.Organization_Name,
+                    OrderDate = o.Order_Date.ToString("dd.MM.yyyy"),
+                    Status = o.Status,
+                    Total = o.Total.ToString("N2") + " ₽"
+                })
+                .ToList();
+
+            MainGrid.ItemsSource = filtered;
+        }
+
+        private void FilterServiceRequests(string searchText)
+        {
+            List<ServiceRequestGridItem> filtered = App.db.Service_Requests
+                .ToList()
+                .Where(sr =>
+                    sr.Clients.Organization_Name.ToLower().Contains(searchText) ||
+                    sr.Problem_Description.ToLower().Contains(searchText) ||
+                    sr.Status.ToLower().Contains(searchText) ||
+                    (sr.Equipment?.Name.ToLower().Contains(searchText) ?? false))
+                .Select(sr => new ServiceRequestGridItem
+                {
+                    ID = sr.ID_Request,
+                    Client = sr.Clients.Organization_Name,
+                    Equipment = sr.Equipment?.Name ?? "—",
+                    CreatedDate = sr.Created_Date.ToString("dd.MM.yyyy"),
+                    Problem = sr.Problem_Description,
+                    Status = sr.Status,
+                    Master = sr.Users?.Login ?? "—"
+                })
+                .ToList();
+
+            MainGrid.ItemsSource = filtered;
+        }
+
+        private void FilterWorks(string searchText)
+        {
+            List<WorkGridItem> filtered = App.db.Works
+                .ToList()
+                .Where(w =>
+                    w.Description.ToLower().Contains(searchText) ||
+                    w.ID_Work.ToString().Contains(searchText))
+                .Select(w => new WorkGridItem
+                {
+                    ID = w.ID_Work,
+                    RequestID = w.ID_Request,
+                    Description = w.Description,
+                    Cost = w.Cost.ToString("N2") + " ₽",
+                    WorkDate = w.Work_Date.ToString("dd.MM.yyyy")
+                })
+                .ToList();
+
+            MainGrid.ItemsSource = filtered;
+        }
+
+        private void FilterEquipment(string searchText)
+        {
+            List<EquipmentGridItem> filtered = App.db.Equipment
+                .ToList()
+                .Where(eq =>
+                    eq.Name.ToLower().Contains(searchText) ||
+                    eq.Model.ToLower().Contains(searchText) ||
+                    eq.Serial_Number.ToLower().Contains(searchText) ||
+                    (eq.Clients?.Organization_Name.ToLower().Contains(searchText) ?? false))
+                .Select(eq => new EquipmentGridItem
+                {
+                    ID = eq.ID_Equipment,
+                    Name = eq.Name,
+                    Model = eq.Model,
+                    SerialNumber = eq.Serial_Number,
+                    Client = eq.Clients?.Organization_Name ?? "—",
+                    Condition = eq.Condition
+                })
+                .ToList();
+
+            MainGrid.ItemsSource = filtered;
+        }
+
+        private void FilterClients(string searchText)
+        {
+            List<ClientGridItem> filtered = App.db.Clients
+                .ToList()
+                .Where(c =>
+                    c.Organization_Name.ToLower().Contains(searchText) ||
+                    c.Contact_Name.ToLower().Contains(searchText) ||
+                    c.Phone.ToLower().Contains(searchText) ||
+                    c.Email.ToLower().Contains(searchText))
+                .Select(c => new ClientGridItem
+                {
+                    ID = c.ID_Client,
+                    OrganizationName = c.Organization_Name,
+                    ContactName = c.Contact_Name,
+                    Phone = c.Phone,
+                    Email = c.Email
+                })
+                .ToList();
+
+            MainGrid.ItemsSource = filtered;
+        }
+
+        #endregion
+    }
+
+    #region Классы для отображения данных
+
+    public class OrderGridItem
+    {
+        public int ID { get; set; }
+        public string Client { get; set; }
+        public string OrderDate { get; set; }
+        public string Status { get; set; }
+        public string Total { get; set; }
+    }
+
+    public class ServiceRequestGridItem
+    {
+        public int ID { get; set; }
+        public string Client { get; set; }
+        public string Equipment { get; set; }
+        public string CreatedDate { get; set; }
+        public string Problem { get; set; }
+        public string Status { get; set; }
+        public string Master { get; set; }
+    }
+
+    public class WorkGridItem
+    {
+        public int ID { get; set; }
+        public int RequestID { get; set; }
+        public string Description { get; set; }
+        public string Cost { get; set; }
+        public string WorkDate { get; set; }
+    }
+
+    public class EquipmentGridItem
+    {
+        public int ID { get; set; }
+        public string Name { get; set; }
+        public string Model { get; set; }
+        public string SerialNumber { get; set; }
+        public string Client { get; set; }
+        public string Condition { get; set; }
+    }
+
+    public class ClientGridItem
+    {
+        public int ID { get; set; }
+        public string OrganizationName { get; set; }
+        public string ContactName { get; set; }
+        public string Phone { get; set; }
+        public string Email { get; set; }
     }
 }
+
+    #endregion

@@ -8,11 +8,17 @@ namespace PolyPrint.View.Windows
 {
     public partial class LoginWindow : Window
     {
+        #region Инициализация
+
         public LoginWindow()
         {
             InitializeComponent();
             Loaded += (_, __) => LoginTextBox.Focus();
         }
+
+        #endregion
+
+        #region Авторизация
 
         private void LoginButton_Click(object sender, RoutedEventArgs e)
         {
@@ -28,19 +34,35 @@ namespace PolyPrint.View.Windows
                 DialogHelper.ShowWarning(requiredError);
                 return;
             }
+            PerformLogin();
+        }
 
-            Users user = App.db.Users.FirstOrDefault(u => u.Login == login && u.Password == password);
+        private void PerformLogin()
+        {
+            string login = LoginTextBox.Text.Trim();
+            string password = PasswordBox.Password.Trim();
 
-            if (user != null)
+            if (string.IsNullOrWhiteSpace(login) || string.IsNullOrWhiteSpace(password))
             {
-                MainWindow mainWindow = new MainWindow();
-                mainWindow.Show();
-                Close();
+                MessageBox.Show("Введите логин и пароль.",
+                    "Ошибка",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Warning);
+                return;
             }
-            else
+
+            Users user = App.db.Users
+                .FirstOrDefault(u => u.Login == login && u.Password == password);
+
+            if (user == null)
             {
                 DialogHelper.ShowWarning("Неверный логин или пароль.");
             }
+
+            MainWindow mainWindow = new MainWindow();
+            mainWindow.Show();
+
+            Close();
         }
 
         private void CloseButton_Click(object sender, RoutedEventArgs e)

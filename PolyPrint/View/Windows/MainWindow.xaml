@@ -5,114 +5,101 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:PolyPrint"
         mc:Ignorable="d"
-        Title="PolyPrint"
-        Width="1100"
-        Height="700"
-        MinWidth="980"
-        MinHeight="620"
-        WindowStartupLocation="CenterScreen">
+        Title="PolyPrint" 
+        Width="900" 
+        Height="550" 
+        WindowStartupLocation="CenterScreen" 
+        ResizeMode="CanResize"
+        MinWidth="800"
+        MinHeight="500"
+        Background="{StaticResource WindowBackgroundBrush}">
+
     <Grid>
+        <!--#region Определение структуры-->
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="260"/>
+            <ColumnDefinition Width="200"/>
             <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
 
-        <Border Grid.Column="0"
-                Background="{StaticResource SidebarBackgroundBrush}"
-                Padding="32"
-                CornerRadius="28,0,0,28"
-                SnapsToDevicePixels="True">
-            <DockPanel LastChildFill="True">
-                <StackPanel DockPanel.Dock="Top">
-                    <TextBlock Text="PolyPrint"
-                               FontSize="26"
-                               FontWeight="Bold"
-                               Margin="0,0,0,4"/>
-                    <TextBlock Text="Управление сервисным центром"
-                               Style="{StaticResource CaptionTextBlockStyle}"/>
-                    <Separator/>
-                </StackPanel>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="60"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <!--#endregion-->
 
-                <StackPanel DockPanel.Dock="Top" Margin="0,12,0,0">
-                    <Button x:Name="JournalButton"
-                            Content="Журнал"
-                            Style="{StaticResource SidebarNavigationButtonStyle}"
-                            Click="JournalButton_Click"/>
-                    <Button x:Name="ClientsButton"
-                            Content="Клиенты"
-                            Style="{StaticResource SidebarNavigationButtonStyle}"
-                            Click="ClientsButton_Click"/>
-                    <Button x:Name="OrdersButton"
-                            Content="Заказы"
-                            Style="{StaticResource SidebarNavigationButtonStyle}"
-                            Click="OrdersButton_Click"/>
-                    <Button x:Name="EquipmentButton"
-                            Content="Оборудование"
-                            Style="{StaticResource SidebarNavigationButtonStyle}"
-                            Click="EquipmentButton_Click"/>
-                    <Button x:Name="ServiceButton"
-                            Content="Сервисные заявки"
-                            Style="{StaticResource SidebarNavigationButtonStyle}"
-                            Click="ServiceButton_Click"/>
-                    <Button x:Name="WorksButton"
-                            Content="Работы"
-                            Style="{StaticResource SidebarNavigationButtonStyle}"
-                            Click="WorksButton_Click"/>
-                    <Button x:Name="PartsButton"
-                            Content="Запчасти"
-                            Style="{StaticResource SidebarNavigationButtonStyle}"
-                            Click="PartsButton_Click"/>
-                </StackPanel>
-
-                <StackPanel DockPanel.Dock="Bottom" Margin="0,24,0,0">
-                    <Separator/>
-                    <TextBlock Text="Советы"
-                               FontWeight="SemiBold"
-                               Margin="0,0,0,4"/>
-                    <TextBlock Text="Используйте навигацию слева, чтобы добавлять клиентов, оборудование и управлять сервисными заявками."
-                               Style="{StaticResource CaptionTextBlockStyle}"/>
-                    <Button Content="О программе"
-                            Style="{StaticResource SidebarNavigationButtonStyle}"
-                            Margin="0,16,0,0"
-                            Click="AboutButton_Click"/>
-                </StackPanel>
-            </DockPanel>
+        <!--#region Шапка приложения-->
+        <Border Grid.ColumnSpan="2" 
+                Grid.Row="0" 
+                Background="{StaticResource HeaderBackgroundBrush}">
+            <TextBlock Text="PolyPrint — система управления" 
+                       VerticalAlignment="Center" 
+                       HorizontalAlignment="Center" 
+                       FontSize="20" 
+                       FontWeight="Bold"
+                       Foreground="{StaticResource HeaderTextBrush}"/>
         </Border>
+        <!--#endregion-->
 
-        <Grid Grid.Column="1" Margin="32">
+        <!--#region Боковое меню-->
+        <Grid Grid.Row="1" 
+              Grid.Column="0" 
+              Background="{StaticResource MenuBackgroundBrush}">
+
             <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
 
-            <Border Grid.Row="0"
-                    Background="{StaticResource SurfaceBrush}"
-                    Padding="24"
-                    CornerRadius="24">
-                <Border.Effect>
-                    <DropShadowEffect Color="#26000000" BlurRadius="14" ShadowDepth="0"/>
-                </Border.Effect>
-                <StackPanel>
-                    <TextBlock x:Name="PageTitleTextBlock"
-                               Style="{StaticResource SectionTitleTextBlockStyle}"
-                               Text="Раздел"/>
-                    <TextBlock x:Name="PageSubtitleTextBlock"
-                               Style="{StaticResource CaptionTextBlockStyle}"
-                               Text="Краткое описание текущего раздела"/>
-                </StackPanel>
-            </Border>
+            <Button x:Name="ClientsButton" 
+                    Grid.Row="0" 
+                    Content="Клиенты"
+                    Style="{StaticResource MenuButtonStyle}"
+                    Margin="20,20,20,10"/>
 
-            <Border Grid.Row="1"
-                    Background="{StaticResource SurfaceBrush}"
-                    CornerRadius="28"
-                    Margin="0,24,0,0"
-                    Padding="0"
-                    SnapsToDevicePixels="True">
-                <Border.Effect>
-                    <DropShadowEffect Color="#26000000" BlurRadius="18" ShadowDepth="0"/>
-                </Border.Effect>
-                <Frame x:Name="MainFrame"/>
-            </Border>
+            <Button x:Name="OrdersButton" 
+                    Grid.Row="1" 
+                    Content="Заказы"
+                    Style="{StaticResource MenuButtonStyle}"
+                    Margin="20,10,20,10"/>
+
+            <Button x:Name="EquipmentButton" 
+                    Grid.Row="2" 
+                    Content="Оборудование"
+                    Style="{StaticResource MenuButtonStyle}"
+                    Margin="20,10,20,10"/>
+
+            <Button x:Name="ServiceButton" 
+                    Grid.Row="3" 
+                    Content="Сервисные заявки"
+                    Style="{StaticResource MenuButtonStyle}"
+                    Margin="20,10,20,10"/>
+
+            <Button x:Name="PartsButton" 
+                    Grid.Row="4" 
+                    Content="Запчасти"
+                    Style="{StaticResource MenuButtonStyle}"
+                    Margin="20,10,20,10"/>
+
+            <Button x:Name="JournalButton" 
+                    Grid.Row="5" 
+                    Content="Журнал"
+                    Style="{StaticResource MenuButtonStyle}"
+                    Margin="20,10,20,10"/>
         </Grid>
+        <!--#endregion-->
+
+        <!--#region Область контента-->
+        <Frame x:Name="MainFrame" 
+               Grid.Row="1" 
+               Grid.Column="1" 
+               NavigationUIVisibility="Hidden"
+               Background="{StaticResource ContentBackgroundBrush}"/>
+        <!--#endregion-->
     </Grid>
 </Window>
+<!--#endregion-->

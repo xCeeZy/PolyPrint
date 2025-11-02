@@ -9,111 +9,90 @@ namespace PolyPrint.View.Windows
 {
     public partial class MainWindow : Window
     {
-        private readonly List<Button> _navigationButtons = new List<Button>();
+        #region Инициализация
 
         public MainWindow()
         {
             InitializeComponent();
-            MainFrame.Navigated += MainFrame_Navigated;
 
-            _navigationButtons.AddRange(new[]
-            {
-                JournalButton,
-                ClientsButton,
-                OrdersButton,
-                EquipmentButton,
-                ServiceButton,
-                WorksButton,
-                PartsButton
-            });
+            ClientsButton.Click += ClientsButton_Click;
+            OrdersButton.Click += OrdersButton_Click;
+            EquipmentButton.Click += EquipmentButton_Click;
+            ServiceButton.Click += ServiceButton_Click;
+            PartsButton.Click += PartsButton_Click;
+            JournalButton.Click += JournalButton_Click;
 
-            NavigateToPage(new JournalPage(), JournalButton, "Журнал");
+            NavigateToClients();
         }
 
-        private void NavigateToPage(Page page, Button sourceButton, string title)
-        {
-            if (page == null || sourceButton == null)
-            {
-                return;
-            }
+        #endregion
 
-            bool navigated = NavigationHelper.Navigate(MainFrame, page);
-            Page currentPage = navigated ? page : MainFrame.Content as Page ?? page;
-
-            if (navigated)
-            {
-                NavigationHelper.ClearJournal(MainFrame);
-            }
-
-            PageTitleTextBlock.Text = title;
-            PageSubtitleTextBlock.Text = currentPage.Tag as string ?? string.Empty;
-            SetActiveNavigation(sourceButton);
-        }
-
-        private void SetActiveNavigation(Button activeButton)
-        {
-            foreach (Button button in _navigationButtons)
-            {
-                if (button == null)
-                {
-                    continue;
-                }
-
-                button.Tag = button == activeButton ? "Active" : null;
-            }
-        }
-
-        private void MainFrame_Navigated(object sender, NavigationEventArgs e)
-        {
-            if (e.Content is Page page)
-            {
-                PageSubtitleTextBlock.Text = page.Tag as string ?? string.Empty;
-            }
-        }
+        #region Навигация
 
         private void ClientsButton_Click(object sender, RoutedEventArgs e)
         {
-            NavigateToPage(new AddClientPage(), ClientsButton, "Клиенты");
+            NavigateToClients();
         }
 
         private void OrdersButton_Click(object sender, RoutedEventArgs e)
         {
-            NavigateToPage(new AddOrderPage(), OrdersButton, "Заказы");
+            NavigateToOrders();
         }
 
         private void EquipmentButton_Click(object sender, RoutedEventArgs e)
         {
-            NavigateToPage(new AddEquipmentPage(), EquipmentButton, "Оборудование");
+            NavigateToEquipment();
         }
 
         private void ServiceButton_Click(object sender, RoutedEventArgs e)
         {
-            NavigateToPage(new AddServiceRequestPage(), ServiceButton, "Сервисные заявки");
+            NavigateToService();
         }
 
         private void PartsButton_Click(object sender, RoutedEventArgs e)
         {
-            NavigateToPage(new AddPartPage(), PartsButton, "Запчасти");
+            NavigateToParts();
         }
 
         private void JournalButton_Click(object sender, RoutedEventArgs e)
         {
-            NavigateToPage(new JournalPage(), JournalButton, "Журнал");
+            NavigateToJournal();
         }
 
-        private void WorksButton_Click(object sender, RoutedEventArgs e)
+        #endregion
+
+        #region Методы навигации
+
+        private void NavigateToClients()
         {
-            NavigateToPage(new AddWorkPage(), WorksButton, "Работы");
+            MainFrame.Navigate(new AddClientPage());
         }
 
-        private void AboutButton_Click(object sender, RoutedEventArgs e)
+        private void NavigateToOrders()
         {
-            AboutWindow aboutWindow = new AboutWindow
-            {
-                Owner = this
-            };
-
-            aboutWindow.ShowDialog();
+            MainFrame.Navigate(new AddOrderPage());
         }
+
+        private void NavigateToEquipment()
+        {
+            MainFrame.Navigate(new AddEquipmentPage());
+        }
+
+        private void NavigateToService()
+        {
+            MainFrame.Navigate(new AddServiceRequestPage());
+        }
+
+        private void NavigateToParts()
+        {
+            MainFrame.Navigate(new AddPartPage());
+        }
+
+        private void NavigateToJournal()
+        {
+            MainFrame.Navigate(new JournalPage());
+        }
+
+        #endregion
     }
 }
