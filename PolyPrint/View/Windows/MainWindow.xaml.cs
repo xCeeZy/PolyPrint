@@ -1,57 +1,101 @@
-﻿using PolyPrint.View.Pages;
-using System;
+using PolyPrint.View.Pages;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
-using System.Windows.Shapes;
 
 namespace PolyPrint.View.Windows
 {
     public partial class MainWindow : Window
     {
+        private readonly List<Button> _navigationButtons = new List<Button>();
+
         public MainWindow()
         {
             InitializeComponent();
-            MainFrame.Navigate(new JournalPage());
+            MainFrame.Navigated += MainFrame_Navigated;
+
+            _navigationButtons.AddRange(new[]
+            {
+                JournalButton,
+                ClientsButton,
+                OrdersButton,
+                EquipmentButton,
+                ServiceButton,
+                WorksButton,
+                PartsButton
+            });
+
+            NavigateToPage(new JournalPage(), JournalButton, "Журнал");
+        }
+
+        private void NavigateToPage(Page page, Button sourceButton, string title)
+        {
+            if (page == null || sourceButton == null)
+            {
+                return;
+            }
+
+            MainFrame.Navigate(page);
+            PageTitleTextBlock.Text = title;
+            PageSubtitleTextBlock.Text = page.Tag as string ?? string.Empty;
+            SetActiveNavigation(sourceButton);
+        }
+
+        private void SetActiveNavigation(Button activeButton)
+        {
+            foreach (Button button in _navigationButtons)
+            {
+                if (button == null)
+                {
+                    continue;
+                }
+
+                button.Tag = button == activeButton ? "Active" : null;
+            }
+        }
+
+        private void MainFrame_Navigated(object sender, NavigationEventArgs e)
+        {
+            if (e.Content is Page page)
+            {
+                PageSubtitleTextBlock.Text = page.Tag as string ?? string.Empty;
+            }
         }
 
         private void ClientsButton_Click(object sender, RoutedEventArgs e)
         {
-            MainFrame.Navigate(new AddClientPage());
+            NavigateToPage(new AddClientPage(), ClientsButton, "Клиенты");
         }
 
         private void OrdersButton_Click(object sender, RoutedEventArgs e)
         {
-            MainFrame.Navigate(new AddOrderPage());
+            NavigateToPage(new AddOrderPage(), OrdersButton, "Заказы");
         }
 
         private void EquipmentButton_Click(object sender, RoutedEventArgs e)
         {
-            MainFrame.Navigate(new AddEquipmentPage());
+            NavigateToPage(new AddEquipmentPage(), EquipmentButton, "Оборудование");
         }
 
         private void ServiceButton_Click(object sender, RoutedEventArgs e)
         {
-            MainFrame.Navigate(new AddServiceRequestPage());
+            NavigateToPage(new AddServiceRequestPage(), ServiceButton, "Сервисные заявки");
         }
 
         private void PartsButton_Click(object sender, RoutedEventArgs e)
         {
-            MainFrame.Navigate(new AddPartPage());
+            NavigateToPage(new AddPartPage(), PartsButton, "Запчасти");
         }
 
         private void JournalButton_Click(object sender, RoutedEventArgs e)
         {
-            MainFrame.Navigate(new JournalPage());
+            NavigateToPage(new JournalPage(), JournalButton, "Журнал");
+        }
+
+        private void WorksButton_Click(object sender, RoutedEventArgs e)
+        {
+            NavigateToPage(new AddWorkPage(), WorksButton, "Работы");
         }
     }
 }

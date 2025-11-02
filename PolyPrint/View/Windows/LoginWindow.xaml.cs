@@ -1,17 +1,6 @@
-﻿using PolyPrint.Model;
-using System;
-using System.Collections.Generic;
+using PolyPrint.Model;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
 
 namespace PolyPrint.View.Windows
 {
@@ -20,6 +9,7 @@ namespace PolyPrint.View.Windows
         public LoginWindow()
         {
             InitializeComponent();
+            Loaded += (_, __) => LoginTextBox.Focus();
         }
 
         private void LoginButton_Click(object sender, RoutedEventArgs e)
@@ -37,8 +27,13 @@ namespace PolyPrint.View.Windows
             }
             else
             {
-                MessageBox.Show("Неверный логин или пароль");
+                MessageBox.Show("Неверный логин или пароль", "PolyPrint", MessageBoxButton.OK, MessageBoxImage.Warning);
             }
+        }
+
+        private void CloseButton_Click(object sender, RoutedEventArgs e)
+        {
+            Close();
         }
     }
 }

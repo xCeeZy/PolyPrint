@@ -1,14 +1,74 @@
-﻿<Page x:Class="PolyPrint.View.Pages.AddClientPage"
+<Page x:Class="PolyPrint.View.Pages.AddClientPage"
       xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
       xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
-      xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
       xmlns:local="clr-namespace:PolyPrint.View.Pages"
-      mc:Ignorable="d" 
-      d:DesignHeight="450" d:DesignWidth="800"
-      Title="AddClientPage">
+      mc:Ignorable="d"
+      d:DesignHeight="600" d:DesignWidth="900"
+      Title="Клиенты"
+      Tag="Добавляйте клиентов и их контактные данные, чтобы быстро оформлять заказы и заявки.">
+    <ScrollViewer VerticalScrollBarVisibility="Auto">
+        <StackPanel Margin="24">
+            <Border Style="{StaticResource CardStyle}">
+                <StackPanel>
+                    <TextBlock Text="Добавление клиента"
+                               Style="{StaticResource SectionTitleTextBlockStyle}"/>
+                    <TextBlock Text="Укажите информацию об организации и контактном лице."
+                               Style="{StaticResource CaptionTextBlockStyle}"/>
 
-    <Grid>
-        
-    </Grid>
+                    <UniformGrid Columns="2" Margin="0,24,0,0">
+                        <StackPanel Margin="0,0,24,16">
+                            <TextBlock Text="Название организации" FontWeight="SemiBold"/>
+                            <TextBox x:Name="OrganizationTextBox" MinWidth="200"/>
+                        </StackPanel>
+                        <StackPanel Margin="0,0,0,16">
+                            <TextBlock Text="Контактное лицо" FontWeight="SemiBold"/>
+                            <TextBox x:Name="ContactTextBox" MinWidth="200"/>
+                        </StackPanel>
+                        <StackPanel Margin="0,0,24,0">
+                            <TextBlock Text="Телефон" FontWeight="SemiBold"/>
+                            <TextBox x:Name="PhoneTextBox" MinWidth="200"/>
+                        </StackPanel>
+                        <StackPanel>
+                            <TextBlock Text="Email" FontWeight="SemiBold"/>
+                            <TextBox x:Name="EmailTextBox" MinWidth="200"/>
+                        </StackPanel>
+                    </UniformGrid>
+
+                    <StackPanel Orientation="Horizontal"
+                                HorizontalAlignment="Right"
+                                Margin="0,24,0,0">
+                        <Button Content="Очистить"
+                                Style="{StaticResource SecondaryButtonStyle}"
+                                Width="140"
+                                Click="ClearClientForm_Click"/>
+                        <Button Content="Сохранить клиента"
+                                Style="{StaticResource PrimaryButtonStyle}"
+                                Width="200"
+                                Margin="12,0,0,0"
+                                Click="SaveClientButton_Click"/>
+                    </StackPanel>
+                </StackPanel>
+            </Border>
+
+            <Border Style="{StaticResource CardStyle}" Margin="0,32,0,0">
+                <StackPanel>
+                    <TextBlock Text="Список клиентов"
+                               Style="{StaticResource SectionTitleTextBlockStyle}"/>
+                    <DataGrid x:Name="ClientsGrid"
+                              AutoGenerateColumns="False"
+                              IsReadOnly="True"
+                              CanUserAddRows="False">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="Организация" Binding="{Binding Organization_Name}" Width="*"/>
+                            <DataGridTextColumn Header="Контакт" Binding="{Binding Contact_Name}" Width="*"/>
+                            <DataGridTextColumn Header="Телефон" Binding="{Binding Phone}" Width="*"/>
+                            <DataGridTextColumn Header="Email" Binding="{Binding Email}" Width="*"/>
+                        </DataGrid.Columns>
+                    </DataGrid>
+                </StackPanel>
+            </Border>
+        </StackPanel>
+    </ScrollViewer>
 </Page>
